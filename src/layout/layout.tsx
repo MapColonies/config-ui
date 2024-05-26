@@ -6,6 +6,7 @@ import {
   ListItemIcon,
   Toolbar,
   ListItemText,
+  Box,
 } from "@mui/material";
 import {
   Settings as ConfigIcon,
@@ -40,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     },
   ];
   return (
-    <div>
+    <Box>
       <Drawer variant="permanent" anchor="left">
         <Toolbar />
         <List>
@@ -55,6 +56,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </List>
       </Drawer>
       {children}
-    </div>
+    </Box>
   );
 };

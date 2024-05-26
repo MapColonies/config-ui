@@ -1,8 +1,9 @@
 import { BrowserRouter, Navigate, useRoutes } from "react-router-dom";
 import { routes } from "./routes";
-import { ConfigsPage } from "../pages/configPages/configs/configsPage";
+
 import { Layout } from "../layout/layout";
-import { SchemasPage } from "../pages/schemaPages/schemas/schemas";
+import { ConfigsPage } from "../pages/configs/configsPage";
+import { SchemasPage } from "../pages/schemas/schemas";
 
 export const Router: React.FC = () => {
   const Routes: React.FC = () => {
