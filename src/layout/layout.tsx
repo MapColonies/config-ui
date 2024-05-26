@@ -1,19 +1,7 @@
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  Toolbar,
-  ListItemText,
-  Box,
-} from "@mui/material";
-import {
-  Settings as ConfigIcon,
-  Description as SchemaIcon,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { routes } from "../routing/routes";
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, Toolbar, ListItemText, Box } from '@mui/material';
+import { Settings as ConfigIcon, Description as SchemaIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '../routing/routes';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -30,12 +18,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const drawerItems: DrawerItem[] = [
     {
-      text: "Config",
+      text: 'Config',
       icon: <ConfigIcon />,
       onClick: () => navigate(routes.CONFIG),
     },
     {
-      text: "Schema",
+      text: 'Schema',
       icon: <SchemaIcon />,
       onClick: () => navigate(routes.SCHEMA),
     },
