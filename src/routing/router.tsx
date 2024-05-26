@@ -13,6 +13,7 @@ export const Router: React.FC = () => {
       { path: routes.CONFIG, element: <ConfigsPage /> },
       { path: routes.SCHEMA, element: <SchemasPage /> },
       { path: routes.NOT_FOUND, element: <NotFoundPage /> },
+      { path: routes.HOME, element: <ConfigsPage /> },
     ]);
   };
 
