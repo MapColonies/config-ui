@@ -9,9 +9,10 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "install": "npx husky install"
   },
-  
+
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",
@@ -24,14 +25,9 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.18",
     "@mui/material": "^5.15.18",
-    "commitlint": "^19.3.0",
-    "husky": "^9.0.11",
-    "pretty-quick": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.23.1",
-    "sass": "^1.77.2",
-    "standard-version": "^9.5.0"
+    "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
@@ -51,6 +47,10 @@
     "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
-    "vite-plugin-eslint": "^1.8.1"
+    "vite-plugin-eslint": "^1.8.1",
+    "husky": "^9.0.11",
+    "pretty-quick": "^4.0.0",
+    "sass": "^1.77.2",
+    "commitlint": "^19.3.0"
   }
 }
