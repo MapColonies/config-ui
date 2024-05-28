@@ -3,8 +3,8 @@ export const routes = {
   NOT_FOUND: '/404',
   CONFIG: '/config',
   CREATE_CONFIG: '/config/create',
-  VIEW_CONFIG: '/config/:id',
+  VIEW_CONFIG: '/config/:name',
   SCHEMA: '/schema',
   CREATE_SCHEMA: '/schema/create',
-  VIEW_SCHEMA: '/schema/:id',
+  VIEW_SCHEMA: '/schema/:name',
 };
