@@ -2,26 +2,38 @@ import { Link, useNavigate } from 'react-router-dom';
 import { GenericTable, TableColumn } from '../../../components/genericTable/genericTable';
 import { ClipboardCopyButton } from '../../../components/clipboardCopyButton/clipboardCopyButton';
 import { ActionMenu } from '../../../components/actionMenu/actionMenu';
-import { MenuItem } from '@mui/material';
+import { Box, MenuItem, Tooltip, Typography } from '@mui/material';
 import { routes } from '../../../routing/routes';
-import { Config } from '../../../api/config/configTypes';
+import Styles from './configTable.module.scss';
+import { config } from '../../../api/client';
+import { removeBaseUrlFromSchemaId } from '../../../utils/schemaUtils';
+
+type TableConfigData = Omit<config, 'config'>;
 
 type ConfigTableProps = {
-  data: Config[];
+  data: TableConfigData[];
 };
 
 export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
   const navigate = useNavigate();
-  const columns: TableColumn<Config>[] = [
+  const columns: TableColumn<TableConfigData>[] = [
     { id: 'version', label: 'Version', sortable: true },
     {
       id: 'configName',
       label: 'Name',
       sortable: true,
-      render: (row: Config) => (
+      render: (row: TableConfigData) => (
         <>
-          <Link to={`/config/${row.configName}`}>{row.configName}</Link>
-          <ClipboardCopyButton text={row.configName} />
+          <Box className={Styles.configNameColumn}>
+            <Link to={`/config/${row.configName}`}>
+              <Tooltip title={row.configName} placement="top-start">
+                <Typography className={Styles.truncate} noWrap>
+                  {row.configName}
+                </Typography>
+              </Tooltip>
+            </Link>
+            <ClipboardCopyButton text={row.configName} />
+          </Box>
         </>
       ),
     },
@@ -29,25 +41,31 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       id: 'schemaId',
       label: 'Schema',
       sortable: true,
-      render: (row: Config) => <Link to={`/schema/${row.schemaId}`}>{row.schemaId}</Link>,
+      render: (row: TableConfigData) => (
+        <Link to={`/schema/view?id=${row.schemaId}`}>
+          <Tooltip title={row.schemaId} placement="top-start">
+            <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
+          </Tooltip>
+        </Link>
+      ),
     },
-    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value: string) => new Date(value).toLocaleString() },
+    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date(value).toLocaleString() },
     { id: 'createdBy', label: 'Owner', sortable: true },
     {
       id: 'actions',
       label: 'Actions',
       sortable: false,
-      render: (row: Config) => (
+      render: (row: TableConfigData) => (
         <>
           <ActionMenu>
             <MenuItem onClick={() => navigate(`/config/${row.configName}`)}>View Config</MenuItem>
-            <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create new Config</MenuItem>
-            <MenuItem>Rollback to version</MenuItem>
+            <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create New Config</MenuItem>
+            <MenuItem>Rollback To Version</MenuItem>
           </ActionMenu>
         </>
       ),
     },
   ];
 
-  return <GenericTable<Config> columns={columns} data={data} />;
+  return <GenericTable<TableConfigData> columns={columns} data={data} />;
 };

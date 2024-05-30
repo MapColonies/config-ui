@@ -1,12 +1,5 @@
-import axios from 'axios';
+import { OpenAPI } from './client';
 
-const CONFIG_SERVER_URL = '/api';
+export const CONFIG_SERVER_BASE_URL = '/api';
 
-export const createServerApi = () => {
-  return axios.create({
-    baseURL: CONFIG_SERVER_URL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-};
+OpenAPI.BASE = CONFIG_SERVER_BASE_URL;

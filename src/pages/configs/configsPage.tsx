@@ -1,11 +1,15 @@
 import React from 'react';
 import { ConfigTable } from './configTable/configTable';
-import { useQuery } from 'react-query';
-import { getConfigs } from '../../api/config/configApi';
 import { Paper, Toolbar, Typography } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { getConfigs } from '../../api/client/services.gen';
 
 export const ConfigsPage: React.FC = () => {
-  const { data } = useQuery({ queryKey: 'configs', queryFn: getConfigs });
+  const { data, error } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs() });
+
+  if (error) {
+    console.error(error);
+  }
 
   return (
     <Paper>

@@ -13,8 +13,8 @@ export const ClipboardCopyButton: React.FC<ClipboardCopyButtonProps> = ({ text, 
   };
   return (
     <>
-      <IconButton className={className} size="small">
-        <ContentCopy onClick={copyToClipboard} />
+      <IconButton className={className} size="small" onClick={copyToClipboard}>
+        <ContentCopy />
       </IconButton>
     </>
   );

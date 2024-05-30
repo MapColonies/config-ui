@@ -1,39 +1,48 @@
 import React from 'react';
+
 import { Toolbar, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, ListItemIcon } from '@mui/material';
 import { Settings as ConfigIcon, Description as SchemaIcon } from '@mui/icons-material';
 import { routes } from '../routing/routes';
-import { useNavigate } from 'react-router-dom';
+import { NavLink as NavLinkBase, NavLinkProps } from 'react-router-dom';
 import Styles from './layout.module.scss';
+import classNames from 'classnames';
+const NavLink = React.forwardRef<unknown, NavLinkProps>((props, ref) => {
+  const className = props.className as string;
+  const selectedClass = classNames(className, 'Mui-selected');
+  return (
+    <NavLinkBase
+      // @ts-expect-error - need to fix
+      ref={ref}
+      {...props}
+      className={({ isActive }): string => (isActive ? selectedClass : className)}
+    />
+  );
+});
 
 type LayoutProps = {
   children: React.ReactNode;
 };
-
 type DrawerItem = {
   id: number;
   text: string;
   icon: React.ReactNode;
-  onClick: () => void;
+  navigatePath: string;
 };
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const navigate = useNavigate();
-  const [selectedButtonIndex, setSelectedButtonIndex] = React.useState<number>(0);
-
   const drawerItems: DrawerItem[] = [
     {
       id: 1,
       text: 'Config',
       icon: <ConfigIcon />,
-      onClick: () => navigate(routes.CONFIG),
+      navigatePath: routes.CONFIG,
     },
     {
       id: 2,
       text: 'Schema',
       icon: <SchemaIcon />,
-      onClick: () => navigate(routes.SCHEMA),
+      navigatePath: routes.SCHEMA,
     },
   ];
-
   return (
     <Box className={Styles.container}>
       <CssBaseline />
@@ -41,14 +50,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Toolbar />
         <List>
           {drawerItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                selected={selectedButtonIndex === item.id}
-                onClick={() => {
-                  item.onClick();
-                  setSelectedButtonIndex(item.id);
-                }}
-              >
+            <ListItem component={NavLink} key={item.text} disablePadding to={item.navigatePath}>
+              <ListItemButton>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>

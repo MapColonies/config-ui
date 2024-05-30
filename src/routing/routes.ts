@@ -6,5 +6,5 @@ export const routes = {
   VIEW_CONFIG: '/config/:name',
   SCHEMA: '/schema',
   CREATE_SCHEMA: '/schema/create',
-  VIEW_SCHEMA: '/schema/:name',
-};
+  VIEW_SCHEMA: '/schema/view',
+} as const satisfies { [key: string]: string };

@@ -1,24 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import Styles from './genericTable.module.scss';
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
-export type TableColumn<T> = {
-  id: keyof T | 'actions';
+type PrimitiveObject = Record<string, string | number | boolean>;
+
+export type TableColumn<T extends PrimitiveObject, K extends keyof T = keyof T> = {
+  id: K | 'actions';
   label: string;
   sortable?: boolean;
   minWidth?: number;
   align?: 'right' | 'left' | 'center';
-  format?: (value: any) => string;
+  format?: (value: T[K]) => string;
   render?: (raw: T) => React.ReactNode;
 };
 
-export type GenericTableProps<T> = {
+export type GenericTableProps<T extends PrimitiveObject> = {
   data: T[];
   columns: TableColumn<T>[];
 };
 
-export const GenericTable = <T,>({ data, columns }: GenericTableProps<T>) => {
+export const GenericTable = <T extends PrimitiveObject>({ data, columns }: GenericTableProps<T>) => {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<keyof T | ''>('');
 
@@ -44,13 +45,13 @@ export const GenericTable = <T,>({ data, columns }: GenericTableProps<T>) => {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.id as string}>
+                <TableCell key={column.id as string} align={column.align}>
                   <TableSortLabel
                     className={Styles.tableColumn}
                     active={orderBy === column.id}
                     direction={orderBy === column.id ? order : 'asc'}
                     disabled={!column.sortable}
-                    onClick={() => column.id !== 'actions' && handleRequestSort(column.id)}
+                    onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
                   >
                     {column.label}
                   </TableSortLabel>
@@ -59,13 +60,17 @@ export const GenericTable = <T,>({ data, columns }: GenericTableProps<T>) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedData.map((row: any, index: number) => (
+            {sortedData.map((row: T, index: number) => (
               <TableRow key={index}>
                 {columns.map((column: TableColumn<T>) => {
                   const cellValue = row[column.id as keyof T];
                   const cellFormat = column.format ? column.format(cellValue) : cellValue;
                   const cellRender = column.render ? column.render(row) : cellFormat;
-                  return <TableCell key={column.id as string}>{cellRender}</TableCell>;
+                  return (
+                    <TableCell key={column.id as string} align={column.align}>
+                      {cellRender}
+                    </TableCell>
+                  );
                 })}
               </TableRow>
             ))}
