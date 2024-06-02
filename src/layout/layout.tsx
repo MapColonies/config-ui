@@ -1,49 +1,60 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, Toolbar, ListItemText, Box } from '@mui/material';
+import React from 'react';
+import { Toolbar, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, ListItemIcon } from '@mui/material';
 import { Settings as ConfigIcon, Description as SchemaIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { routes } from '../routing/routes';
+import { NavLink as NavLinkBase, NavLinkProps } from 'react-router-dom';
+import Styles from './layout.module.scss';
+import classNames from 'classnames';
+
+const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>((props, ref) => {
+  const className = props.className as string;
+  const selectedClass = classNames(className, 'Mui-selected');
+  return <NavLinkBase ref={ref} {...props} className={({ isActive }): string => (isActive ? selectedClass : className)} />;
+});
 
 type LayoutProps = {
   children: React.ReactNode;
 };
-
 type DrawerItem = {
+  id: number;
   text: string;
   icon: React.ReactNode;
-  onClick: () => void;
+  navigatePath: string;
 };
-
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const navigate = useNavigate();
-
   const drawerItems: DrawerItem[] = [
     {
+      id: 1,
       text: 'Config',
       icon: <ConfigIcon />,
-      onClick: () => navigate(routes.CONFIG),
+      navigatePath: routes.CONFIG,
     },
     {
+      id: 2,
       text: 'Schema',
       icon: <SchemaIcon />,
-      onClick: () => navigate(routes.SCHEMA),
+      navigatePath: routes.SCHEMA,
     },
   ];
   return (
-    <Box>
-      <Drawer variant="permanent" anchor="left">
+    <Box className={Styles.container}>
+      <CssBaseline />
+      <Box className={Styles.sideBar}>
         <Toolbar />
         <List>
           {drawerItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton onClick={item.onClick}>
+            <ListItem component={NavLink} key={item.text} disablePadding to={item.navigatePath}>
+              <ListItemButton>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
-      </Drawer>
-      {children}
+      </Box>
+      <Box component="main" className={Styles.page} sx={{ p: 3 }}>
+        {children}
+      </Box>
     </Box>
   );
 };

@@ -1,0 +1,13 @@
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.configNameColumn {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  width: 15vh;
+}
