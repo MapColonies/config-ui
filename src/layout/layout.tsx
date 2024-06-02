@@ -1,22 +1,15 @@
 import React from 'react';
-
 import { Toolbar, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, ListItemIcon } from '@mui/material';
 import { Settings as ConfigIcon, Description as SchemaIcon } from '@mui/icons-material';
 import { routes } from '../routing/routes';
 import { NavLink as NavLinkBase, NavLinkProps } from 'react-router-dom';
 import Styles from './layout.module.scss';
 import classNames from 'classnames';
-const NavLink = React.forwardRef<unknown, NavLinkProps>((props, ref) => {
+
+const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>((props, ref) => {
   const className = props.className as string;
   const selectedClass = classNames(className, 'Mui-selected');
-  return (
-    <NavLinkBase
-      // @ts-expect-error - need to fix
-      ref={ref}
-      {...props}
-      className={({ isActive }): string => (isActive ? selectedClass : className)}
-    />
-  );
+  return <NavLinkBase ref={ref} {...props} className={({ isActive }): string => (isActive ? selectedClass : className)} />;
 });
 
 type LayoutProps = {
