@@ -3,8 +3,32 @@ import { config } from '../../../api/client';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+type ConfigInfoItemProps = {
+  configInfoItem: ListData;
+};
+
+const ConfigInfoItem: React.FC<ConfigInfoItemProps> = ({ configInfoItem }) => {
+  const { key, value } = configInfoItem;
+  return (
+    <ListItem key={key} alignItems="flex-start">
+      <ListItemText
+        primary={
+          <Typography variant="body1" fontWeight="bold" sx={{ textDecoration: 'underline' }}>
+            {key}
+          </Typography>
+        }
+        secondary={
+          <Typography variant="body2" color="textSecondary">
+            {value}
+          </Typography>
+        }
+      />
+    </ListItem>
+  );
+};
+
 type ConfigInfoPageProps = {
-  configInfo: config | undefined;
+  configInfo: config;
 };
 
 type ListData = {
@@ -13,11 +37,7 @@ type ListData = {
 };
 
 export const ConfigInfoPage: React.FC<ConfigInfoPageProps> = ({ configInfo }) => {
-  if (!configInfo) {
-    return <div>Config not found</div>;
-  }
-
-  const configTPresent: ListData[] = [
+  const configInfoList: ListData[] = [
     { key: 'Name', value: configInfo.configName },
     { key: 'Version', value: configInfo.version },
     { key: 'Schema', value: <Link to={`/schema/view?id=${configInfo.schemaId}`}>{configInfo.schemaId}</Link> },
@@ -29,23 +49,8 @@ export const ConfigInfoPage: React.FC<ConfigInfoPageProps> = ({ configInfo }) =>
     <Box>
       <Paper>
         <List>
-          {configTPresent.map(({ key, value }) => {
-            return (
-              <ListItem key={key} alignItems="flex-start">
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" fontWeight="bold" sx={{ textDecoration: 'underline' }}>
-                      {key}
-                    </Typography>
-                  }
-                  secondary={
-                    <Typography variant="body2" color="textSecondary">
-                      {value}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            );
+          {configInfoList.map((configInfoItem) => {
+            return <ConfigInfoItem key={configInfoItem.key} configInfoItem={configInfoItem} />;
           })}
         </List>
       </Paper>

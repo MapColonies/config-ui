@@ -5,7 +5,7 @@ import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import { useQuery } from '@tanstack/react-query';
 import Styles from './viewConfig.module.scss';
-import { QueryWrapper } from '../../../components/queryWrapper/queryWrapper';
+import { QueryDataRenderer } from '../../../components/queryDataRenderer/queryDataRenderer';
 
 type ViewConfigPageProps = {
   config: Config;
@@ -19,11 +19,11 @@ export const ViewConfigPage: React.FC<ViewConfigPageProps> = ({ config }) => {
 
   return (
     <Box>
-      <QueryWrapper isLoading={isLoading} error={error} isSuccess={isSuccess}>
+      <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
         <Paper sx={{ overflowY: 'auto', height: '85vh', padding: '10px' }}>
           {<Form className={Styles.form} schema={data as RJSFSchema} formData={config.config} validator={validator} readonly={true} />}
         </Paper>
-      </QueryWrapper>
+      </QueryDataRenderer>
     </Box>
   );
 };

@@ -5,15 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { getConfigs } from '../../api/client/services.gen';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routing/routes';
-import { QueryWrapper } from '../../components/queryWrapper/queryWrapper';
+import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
 
 export const ConfigsPage: React.FC = () => {
   const { data, error, isLoading, isSuccess } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs() });
 
-  const configData = useMemo(() => data?.configs ?? [], [data]);
-
   return (
-    <QueryWrapper isLoading={isLoading} error={error} isSuccess={isSuccess}>
+    <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
       <Paper>
         <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
           <Typography variant="h5">Configs Page</Typography>
@@ -23,8 +21,8 @@ export const ConfigsPage: React.FC = () => {
             <Typography sx={{ color: 'white' }}>Create Config</Typography>
           </Button>
         </Toolbar>
-        <ConfigTable data={configData} />
+        <ConfigTable data={data?.configs ?? []} />
       </Paper>
-    </QueryWrapper>
+    </QueryDataRenderer>
   );
 };

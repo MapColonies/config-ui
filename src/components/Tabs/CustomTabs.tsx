@@ -14,11 +14,9 @@ export type CustomTabsProps = {
 };
 
 export const CustomTabs: React.FC<CustomTabsProps> = ({ tabs }) => {
-  const routesMatch = tabs.map((tab) => tab.path);
+  const routesPaths = tabs.map((tab) => tab.path);
+  const currentTab = useRouteMatch(routesPaths);
 
-  const routeMatch = useRouteMatch(routesMatch);
-
-  const currentTab = routeMatch?.pattern?.path;
   return (
     <>
       <Tabs value={currentTab}>
@@ -26,7 +24,7 @@ export const CustomTabs: React.FC<CustomTabsProps> = ({ tabs }) => {
           <Tab key={tab.path} label={tab.label} value={tab.path} component={Link} to={tab.path} />
         ))}
       </Tabs>
-      <Box sx={{ width: '100%' }}>{currentTab && tabs.find((tab) => tab.path === currentTab)?.component}</Box>
+      {currentTab && <Box sx={{ width: '100%' }}>{tabs.find((tab) => tab.path === currentTab)?.component}</Box>}
     </>
   );
 };

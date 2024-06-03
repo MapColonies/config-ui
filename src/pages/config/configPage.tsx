@@ -5,10 +5,32 @@ import { ViewConfigPage } from './viewConfig/viewConfig';
 import { Box, Typography } from '@mui/material';
 import { ConfigInfoPage } from './configInfo/configInfoPage';
 import { useQuery } from '@tanstack/react-query';
-import { getVersionedConfig } from '../../api/client';
+import { config as Config, getVersionedConfig } from '../../api/client';
 import { ViewConfigJsonPage } from './viewConfigJson/viewConfigJson';
 import { useCallback, useMemo } from 'react';
-import { QueryWrapper } from '../../components/queryWrapper/queryWrapper';
+import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
+
+type ConfigPageTabsProps = {
+  data: Config;
+};
+
+const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ data }) => {
+  const { version, configName: name } = data;
+  const tabs = [
+    { label: 'Info', path: encodeURI(`${routes.CONFIG}/${name}/${version}`), component: <ConfigInfoPage configInfo={data} /> },
+    {
+      label: 'Data',
+      path: encodeURI(`${routes.CONFIG}/${name}/${version}/data`),
+      component: <ViewConfigPage config={data} />,
+    },
+    {
+      label: 'JSON',
+      path: encodeURI(`${routes.CONFIG}/${name}/${version}/json`),
+      component: <ViewConfigJsonPage />,
+    },
+  ];
+  return <CustomTabs tabs={tabs} />;
+};
 
 export const ConfigPage: React.FC = () => {
   const { name, version } = useParams();
@@ -20,29 +42,12 @@ export const ConfigPage: React.FC = () => {
     queryFn: fetchVersionedConfig,
   });
 
-  const tabsMemo = useMemo(() => {
-    if (!data) return [];
-    return [
-      { label: 'Info', path: encodeURI(`${routes.CONFIG}/${name}/${version}`), component: <ConfigInfoPage configInfo={data} /> },
-      {
-        label: 'Data',
-        path: encodeURI(`${routes.CONFIG}/${name}/${version}/data`),
-        component: <ViewConfigPage config={data} />,
-      },
-      {
-        label: 'Json',
-        path: encodeURI(`${routes.CONFIG}/${name}/${version}/json`),
-        component: <ViewConfigJsonPage />,
-      },
-    ];
-  }, [name, version, data]);
-
   return (
     <Box>
-      <QueryWrapper isLoading={isLoading} error={error} isSuccess={isSuccess}>
+      <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
         <Typography variant="h4"> {`${name}-v${version}`}</Typography>
-        <CustomTabs tabs={tabsMemo} />
-      </QueryWrapper>
+        {data && <ConfigPageTabs data={data} />}
+      </QueryDataRenderer>
     </Box>
   );
 };
