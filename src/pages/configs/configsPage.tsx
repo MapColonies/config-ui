@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ConfigTable } from './configTable/configTable';
 import { Button, Paper, Toolbar, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
