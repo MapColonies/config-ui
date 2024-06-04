@@ -5,29 +5,24 @@ import { useQuery } from '@tanstack/react-query';
 import { getConfigs } from '../../api/client/services.gen';
 import { Link } from 'react-router-dom';
 import { routes } from '../../routing/routes';
+import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
 
 export const ConfigsPage: React.FC = () => {
-  const { data, error } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs() });
-
-  if (error) {
-    console.error(error);
-  }
-
-  const createText = 'Create Config';
+  const { data, error, isLoading, isSuccess } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs() });
 
   return (
-    <Paper>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Typography variant="h5">Configs Page</Typography>
-      </Toolbar>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" color="primary">
-          <Link to={routes.CREATE_CONFIG}>
-            <Typography sx={{ color: 'white' }}>{createText}</Typography>
-          </Link>
-        </Button>
-      </Toolbar>
-      <ConfigTable data={data?.configs ?? []} />
-    </Paper>
+    <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
+      <Paper>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Typography variant="h5">Configs Page</Typography>
+        </Toolbar>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="contained" color="primary" component={Link} to={routes.CREATE_CONFIG}>
+            <Typography sx={{ color: 'white' }}>Create Config</Typography>
+          </Button>
+        </Toolbar>
+        <ConfigTable data={data?.configs ?? []} />
+      </Paper>
+    </QueryDataRenderer>
   );
 };

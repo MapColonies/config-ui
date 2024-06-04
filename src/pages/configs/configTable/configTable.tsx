@@ -25,7 +25,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       render: (row: TableConfigData) => (
         <>
           <Box className={Styles.configNameColumn}>
-            <Link to={`/config/${row.configName}`}>
+            <Link to={`/config/${row.configName}/${row.version}`}>
               <Tooltip title={row.configName} placement="top-start">
                 <Typography className={Styles.truncate} noWrap>
                   {row.configName}
@@ -58,7 +58,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       render: (row: TableConfigData) => (
         <>
           <ActionMenu>
-            <MenuItem onClick={() => navigate(`/config/${row.configName}`)}>View Config</MenuItem>
+            <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}`)}>View Config</MenuItem>
             <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create New Config</MenuItem>
             <MenuItem>Rollback To Version</MenuItem>
           </ActionMenu>
