@@ -26,7 +26,7 @@ const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ data }) => {
     {
       label: 'JSON',
       path: encodeURI(`${routes.CONFIG}/${name}/${version}/json`),
-      component: <ViewConfigJsonPage />,
+      component: <ViewConfigJsonPage config={data.config} />,
     },
   ];
   return <CustomTabs tabs={tabs} />;
