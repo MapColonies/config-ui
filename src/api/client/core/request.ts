@@ -25,7 +25,6 @@ export const base64 = (str: string): string => {
   try {
     return btoa(str);
   } catch (err) {
-    // @ts-ignore
     return Buffer.from(str).toString('base64');
   }
 };
@@ -62,6 +61,7 @@ const getUrl = (config: OpenAPIConfig, options: ApiRequestOptions): string => {
   const encoder = config.ENCODE_PATH || encodeURI;
 
   const path = options.url.replace('{api-version}', config.VERSION).replace(/{(.*?)}/g, (substring: string, group: string) => {
+    // eslint-disable-next-line no-prototype-builtins
     if (options.path?.hasOwnProperty(group)) {
       return encoder(String(options.path[group]));
     }
@@ -330,7 +330,7 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
 
         catchErrorCodes(options, result);
 
-        resolve(result.body);
+        resolve(result.body as T);
       }
     } catch (error) {
       (error as ApiError).message = ((error as ApiError).body as { message: string })?.message ?? (error as ApiError).message;
