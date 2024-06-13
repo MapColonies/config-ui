@@ -25,6 +25,7 @@ export const base64 = (str: string): string => {
   try {
     return btoa(str);
   } catch (err) {
+    // @ts-ignore
     return Buffer.from(str).toString('base64');
   }
 };
@@ -61,7 +62,6 @@ const getUrl = (config: OpenAPIConfig, options: ApiRequestOptions): string => {
   const encoder = config.ENCODE_PATH || encodeURI;
 
   const path = options.url.replace('{api-version}', config.VERSION).replace(/{(.*?)}/g, (substring: string, group: string) => {
-    // eslint-disable-next-line no-prototype-builtins
     if (options.path?.hasOwnProperty(group)) {
       return encoder(String(options.path[group]));
     }
@@ -275,7 +275,6 @@ export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): 
     511: 'Network Authentication Required',
     ...options.errors,
   };
-
   const error = errors[result.status];
   if (error) {
     throw new ApiError(options, result, error);
@@ -334,6 +333,8 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
         resolve(result.body);
       }
     } catch (error) {
+      (error as ApiError).message = ((error as ApiError).body as { message: string })?.message ?? (error as ApiError).message;
+      console.log((error as ApiError).body);
       reject(error);
     }
   });

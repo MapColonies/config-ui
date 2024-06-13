@@ -15,6 +15,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@hookform/resolvers": "^3.5.0",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.15.18",
     "@mui/material": "^5.15.18",
@@ -23,10 +24,13 @@
     "@rjsf/utils": "^5.18.4",
     "@rjsf/validator-ajv8": "^5.18.4",
     "@tanstack/react-query": "^5.40.0",
+    "ajv": "^6.12.6",
     "classnames": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.23.1"
+    "react-hook-form": "^7.51.5",
+    "react-router-dom": "^6.23.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",

@@ -33,8 +33,8 @@ export type config = {
   config: {
     [key: string]: unknown;
   };
-  readonly createdAt: createdAt;
-  readonly createdBy: createdBy;
+  readonly createdAt?: createdAt;
+  readonly createdBy?: createdBy;
 };
 
 export type capabilities = {
@@ -97,6 +97,11 @@ export type ParameterLimitQuery = number;
  */
 export type ParameterFullTextQuery = string;
 
+/**
+ * should the server bundle all refs into one config
+ */
+export type ParameterShouldDereferenceConfigQuery = boolean;
+
 export type GetConfigsData = {
   /**
    * Filters objects based on the exact value of the configName property.
@@ -152,12 +157,20 @@ export type UpsertConfigResponse = unknown;
 
 export type GetConfigsByNameData = {
   name: configName;
+  /**
+   * should the server bundle all refs into one config
+   */
+  shouldDereference?: boolean;
 };
 
 export type GetConfigsByNameResponse = config;
 
 export type GetVersionedConfigData = {
   name: configName;
+  /**
+   * should the server bundle all refs into one config
+   */
+  shouldDereference?: boolean;
   version: 'latest' | version;
 };
 

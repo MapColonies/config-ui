@@ -11,22 +11,22 @@ import { useCallback, useMemo } from 'react';
 import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
 
 type ConfigPageTabsProps = {
-  data: Config;
+  configInfo: Config;
 };
 
-const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ data }) => {
-  const { version, configName: name } = data;
+const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ configInfo }) => {
+  const { version, configName: name } = configInfo;
   const tabs = [
-    { label: 'Info', path: encodeURI(`${routes.CONFIG}/${name}/${version}`), component: <ConfigInfoPage configInfo={data} /> },
+    { label: 'Info', path: encodeURI(`${routes.CONFIG}/${name}/${version}`), component: <ConfigInfoPage configInfo={configInfo} /> },
     {
       label: 'Data',
       path: encodeURI(`${routes.CONFIG}/${name}/${version}/data`),
-      component: <ViewConfigPage config={data} />,
+      component: <ViewConfigPage configInfo={configInfo} />,
     },
     {
       label: 'JSON',
       path: encodeURI(`${routes.CONFIG}/${name}/${version}/json`),
-      component: <ViewConfigJsonPage config={data.config} />,
+      component: <ViewConfigJsonPage config={configInfo.config} />,
     },
   ];
   return <CustomTabs tabs={tabs} />;
@@ -37,7 +37,12 @@ export const ConfigPage: React.FC = () => {
   const versionNumber = useMemo(() => Number(version), [version]);
 
   const fetchVersionedConfig = useCallback(() => getVersionedConfig({ name: name ?? '', version: versionNumber }), [name, versionNumber]);
-  const { data, error, isSuccess, isLoading } = useQuery({
+  const {
+    data: configInfo,
+    error,
+    isSuccess,
+    isLoading,
+  } = useQuery({
     queryKey: ['versionedConfig'],
     queryFn: fetchVersionedConfig,
   });
@@ -46,7 +51,7 @@ export const ConfigPage: React.FC = () => {
     <Box>
       <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
         <Typography variant="h4"> {`${name}-v${version}`}</Typography>
-        {data && <ConfigPageTabs data={data} />}
+        {configInfo && <ConfigPageTabs configInfo={configInfo} />}
       </QueryDataRenderer>
     </Box>
   );

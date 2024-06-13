@@ -21,7 +21,10 @@ export const Router: React.FC = () => {
         element: <ConfigPage />,
         children: [{ path: routes.VIEW_CONFIG }, { path: routes.VIEW_CONFIG_JSON }],
       },
-      { path: routes.CREATE_CONFIG, element: <CreateConfigsPage /> },
+      {
+        path: routes.CREATE_CONFIG,
+        element: <CreateConfigsPage />,
+      },
       { path: routes.SCHEMA, element: <SchemasPage /> },
       { path: routes.VIEW_SCHEMA, element: <ViewSchemaPage /> },
     ]);

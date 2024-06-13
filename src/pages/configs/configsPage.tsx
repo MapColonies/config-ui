@@ -8,7 +8,7 @@ import { routes } from '../../routing/routes';
 import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
 
 export const ConfigsPage: React.FC = () => {
-  const { data, error, isLoading, isSuccess } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs() });
+  const { data, error, isLoading, isSuccess } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs({ limit: 100 }) });
 
   return (
     <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
