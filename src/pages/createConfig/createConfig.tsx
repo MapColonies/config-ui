@@ -10,29 +10,31 @@ import { StepSequence } from '../../components/HorizontalLinearStepper/step.type
 import { UpsertConfigData, upsertConfig } from '../../api/client';
 import { useMutation } from '@tanstack/react-query';
 import { GeneralInfoForm } from './step1GeneralInfo/step1GeneralInfo.schemas';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '../../routing/routes';
 
 export const CreateConfigsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<StepEnum>(StepEnum.STEP1);
-  const [step1Data, setStep1Data] = useState<GeneralInfoForm | undefined>(undefined);
+  const [step1GeneralInfoData, setStep1GeneralInfoData] = useState<GeneralInfoForm | undefined>(undefined);
   const [isStep1Valid, setIsStep1Valid] = useState<boolean>(false);
-  const [step2Data, setStep2Data] = useState<ConfigData>();
+  const [step2AddConfigData, setStep2AddConfigData] = useState<ConfigData>();
   const [step2JsonStringData, setStep2JsonStringData] = useState<string | undefined>(undefined);
   const [isStep2Valid, setIsStep2Valid] = useState<boolean>(false);
 
-  const { mutateAsync: createConfig, isSuccess, isError, error } = useMutation({ mutationFn: upsertConfig });
+  const { mutateAsync: createConfig, isError, error } = useMutation({ mutationFn: upsertConfig });
 
   useEffect(() => {
-    console.log('step1Data', step1Data);
     setStep2JsonStringData(undefined);
-  }, [step1Data?.schemaId]);
+  }, [step1GeneralInfoData?.schemaId]);
 
-  const onStep1DataChange = useCallback((data: GeneralInfoForm | undefined, isValid: boolean) => {
-    setStep1Data(data);
+  const onStep1GeneralInfoDataChange = useCallback((data: GeneralInfoForm | undefined, isValid: boolean) => {
+    setStep1GeneralInfoData(data);
     setIsStep1Valid(isValid);
   }, []);
 
-  const onStep2DataChange = useCallback((data: ConfigData | undefined, isValid: boolean) => {
-    setStep2Data(data);
+  const onStep2AddConfigDataChange = useCallback((data: ConfigData | undefined, isValid: boolean) => {
+    setStep2AddConfigData(data);
     setIsStep2Valid(isValid);
   }, []);
 
@@ -40,15 +42,15 @@ export const CreateConfigsPage: React.FC = () => {
     {
       label: 'General Info',
       isValid: isStep1Valid,
-      component: <Step1GeneralInfo onDataChange={onStep1DataChange} initialData={step1Data} />,
+      component: <Step1GeneralInfo onDataChange={onStep1GeneralInfoDataChange} initialData={step1GeneralInfoData && { ...step1GeneralInfoData }} />,
     },
     {
       label: 'Config',
       isValid: isStep2Valid,
-      component: step1Data && (
+      component: step1GeneralInfoData && (
         <Step2AddConfig
-          schemaId={step1Data.schemaId}
-          onDataChange={onStep2DataChange}
+          schemaId={step1GeneralInfoData.schemaId}
+          onDataChange={onStep2AddConfigDataChange}
           initialJsonStringData={step2JsonStringData}
           onJsonStringChange={setStep2JsonStringData}
         />
@@ -72,33 +74,37 @@ export const CreateConfigsPage: React.FC = () => {
   };
 
   const handleFinish = useCallback(async (): Promise<boolean> => {
-    if (!step1Data || !step2Data) {
+    if (!step1GeneralInfoData || !step2AddConfigData) {
       return false;
     }
 
-    const requestBody: UpsertConfigData = {
+    const upsertData: UpsertConfigData = {
       requestBody: {
-        configName: step1Data.configName,
-        schemaId: step1Data.schemaId,
-        version: Number(step1Data.version),
-        config: step2Data,
+        configName: step1GeneralInfoData.configName,
+        schemaId: step1GeneralInfoData.schemaId,
+        version: Number(step1GeneralInfoData.version),
+        config: step2AddConfigData,
       },
     };
 
     try {
-      await createConfig(requestBody);
-      return isSuccess;
+      await createConfig(upsertData, {
+        onSuccess: () => {
+          navigate(`${routes.CONFIG}/${upsertData.requestBody.configName}/latest`);
+        },
+      });
+      return true;
     } catch (e) {
       console.log(e);
       return false;
     }
-  }, [step1Data, step2Data, createConfig, isSuccess]);
+  }, [step1GeneralInfoData, step2AddConfigData, createConfig, navigate]);
 
   const handleReset = () => {
     setCurrentStep(StepEnum.STEP1);
-    setStep1Data(undefined);
+    setStep1GeneralInfoData(undefined);
     setIsStep1Valid(false);
-    setStep2Data(undefined);
+    setStep2AddConfigData(undefined);
     setStep2JsonStringData(undefined);
     setIsStep2Valid(false);
   };

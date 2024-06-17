@@ -3,8 +3,12 @@ import Styles from './step1GenerateInfo.module.scss';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
+import { GeneralInfoForm, generalInfoFormSchema } from './step1GeneralInfo.schemas';
 import { SchemaSelect } from '../../../components/SchemaSelect/schemaSelect';
-import { GeneralInfoForm, SchemaSelectValue, generalInfoFormSchema } from './step1GeneralInfo.schemas';
+import { getConfigsByName } from '../../../api/client';
+import { useMutation } from '@tanstack/react-query';
+
+const DefaultVersion = '1';
 
 type Step1GeneralInfoProps = {
   onDataChange: (data: GeneralInfoForm | undefined, isValid: boolean) => void;
@@ -12,10 +16,14 @@ type Step1GeneralInfoProps = {
 };
 
 export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange, initialData }) => {
-  const { register, formState, watch, setValue, trigger, setFocus } = useForm<GeneralInfoForm>({
+  const { mutateAsync: getConfigByName } = useMutation({
+    mutationFn: getConfigsByName,
+  });
+
+  const { register, formState, watch, setValue, trigger } = useForm<GeneralInfoForm>({
     mode: 'all',
     resolver: zodResolver(generalInfoFormSchema),
-    defaultValues: initialData ? initialData : undefined,
+    defaultValues: { ...initialData, version: initialData?.version ?? DefaultVersion },
   });
 
   const { errors, isValid } = formState;
@@ -24,8 +32,6 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
   const version = watch('version');
   const schemaId = watch('schemaId');
   const description = watch('description');
-  const createdBy = watch('createdBy');
-  const schemaSelect = watch('schemaSelect');
 
   useEffect(() => {
     const values = {
@@ -33,20 +39,31 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
       version,
       schemaId,
       description,
-      createdBy,
-      schemaSelect,
     };
-
     onDataChange(values, isValid);
-  }, [isValid, configName, version, schemaId, description, createdBy, schemaSelect, onDataChange]);
+  }, [isValid, configName, version, schemaId, description, onDataChange]);
 
-  const handleSchemaSelectDataChange = (value: SchemaSelectValue) => {
-    setValue('schemaSelect', value);
-    setValue('schemaId', value?.schemaSelection?.id ?? '');
-    if (value?.schemaSelection?.id) {
-      setFocus('schemaId');
-      trigger('schemaId');
+  useEffect(() => {
+    if (configName) {
+      getConfigByName({ name: configName })
+        .then((config) => {
+          if (config) {
+            setValue('version', String(config.version) ?? DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+          } else {
+            setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to fetch config', error);
+          setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        });
     }
+    setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  }, [configName, getConfigByName, setValue]);
+
+  const handleSchemaSelectDataChange = (value: string) => {
+    setValue('schemaId', value);
+    trigger('schemaId');
   };
 
   return (
@@ -56,17 +73,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
       </Typography>
 
       <Box className={Styles.generalInfoForm}>
-        <SchemaSelect initialValue={schemaSelect} {...register('schemaSelect')} onChange={handleSchemaSelectDataChange} />
-        <TextField
-          className="MuiFormLabel-filled"
-          id="schemaId"
-          label="Schema Id"
-          variant="outlined"
-          error={!!errors.schemaId}
-          helperText={errors.schemaId?.message}
-          InputLabelProps={{ shrink: !!schemaId }}
-          {...register('schemaId')}
-        />
+        <SchemaSelect error={errors.schemaId?.message} initialValue={initialData?.schemaId} onChange={handleSchemaSelectDataChange} />
         <TextField
           id="configName"
           label="Config Name"
@@ -75,26 +82,23 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           helperText={errors.configName?.message}
           {...register('configName')}
         />
-        <TextField
+
+        {/*
+          // We need to decide how to handle the version field
+         <TextField
+          hidden={true}
+          hiddenLabel={true}
           id="version"
           label="Version"
           variant="outlined"
           inputProps={{ type: 'number', min: 1, inputMode: 'numeric' }}
           inputMode="numeric"
           type="number"
+          InputProps={{ readOnly: true }}
           error={!!errors.version}
           helperText={errors.version?.message}
           {...register('version')}
-        />
-
-        <TextField
-          id="createdBy"
-          label="Created By"
-          variant="outlined"
-          error={!!errors.createdBy}
-          helperText={errors.createdBy?.message}
-          {...register('createdBy')}
-        />
+        /> */}
         <TextField
           id="description"
           label="Description"

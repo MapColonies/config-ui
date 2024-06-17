@@ -8,6 +8,8 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useMonaco } from '@monaco-editor/react';
 import { ConfigData } from '../createConfig.types';
 
+const ajvInstance = new ajv();
+
 type Step2AddConfigProps = {
   schemaId: string;
   onDataChange: (data: ConfigData | undefined, isValid: boolean) => void;
@@ -25,11 +27,9 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
 
   const monaco = useMonaco();
 
-  const ajvInstance = useMemo(() => new ajv(), []);
-
   const validate = useMemo(() => {
     return ajvInstance.compile(schema ?? {});
-  }, [schema, ajvInstance]);
+  }, [schema]);
 
   const diagnosticOptions: languages.json.DiagnosticsOptions = useMemo(() => {
     if (!isSuccess) {

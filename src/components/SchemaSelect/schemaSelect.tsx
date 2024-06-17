@@ -1,85 +1,50 @@
-import { Autocomplete, Box, ListSubheader, TextField } from '@mui/material';
+import React, { useMemo } from 'react';
+import { getSchemasTree } from '../../api/client';
 import { useQuery } from '@tanstack/react-query';
-import { getSchemasTree, schemaTreeDir } from '../../api/client';
-import { useState } from 'react';
-import { GroupOption, flattenData } from './schemaSelect.types';
-import { SchemaSelectValue } from '../../pages/createConfig/step1GeneralInfo/step1GeneralInfo.schemas';
+import { GroupOption, flattenData } from './schemaSelect.utils';
+import { Autocomplete, Box, FilterOptionsState, ListSubheader, TextField } from '@mui/material';
 
 type SchemaSelectProps = {
-  onChange: (value: SchemaSelectValue) => void;
-  initialValue?: SchemaSelectValue;
+  onChange: (value: string) => void;
+  initialValue?: string;
+  error: string | undefined;
 };
 
-export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialValue }) => {
+export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialValue, error }) => {
   const { data, isSuccess } = useQuery({ queryKey: ['getSchemasTree'], queryFn: () => getSchemasTree() });
 
-  const [topLevelSelection, setTopLevelSelection] = useState<schemaTreeDir | null>(initialValue?.topLevel ?? null);
-  const [midLevelSelection, setMidLevelSelection] = useState<schemaTreeDir | null>(initialValue?.midLevel ?? null);
-  const [schemaSelection, setSchemaSelection] = useState<GroupOption | null>(initialValue?.schemaSelection ?? null);
+  const options = useMemo(() => (isSuccess ? flattenData(data) : []), [data, isSuccess]);
 
-  // Handle changes for the top level selection
-  const handleTopLevelChange = (_, value: schemaTreeDir | null) => {
-    setTopLevelSelection(value);
-    setMidLevelSelection(null);
-    setSchemaSelection(null);
-    onChange({ topLevel: value, midLevel: null, schemaSelection: null });
+  const initialSelection = useMemo(() => options.find((option) => option.id === initialValue) ?? null, [options, initialValue]);
+
+  const handleSelectChange = (_, value: GroupOption | null) => {
+    if (value) {
+      onChange(value.id);
+    }
   };
 
-  // Handle changes for the mid level selection
-  const handleMidLevelChange = (_, value: schemaTreeDir | null) => {
-    setMidLevelSelection(value);
-    setSchemaSelection(null);
-    onChange({ topLevel: topLevelSelection, midLevel: value, schemaSelection: null });
+  const filterOptions = (options: GroupOption[], state: FilterOptionsState<GroupOption>): GroupOption[] => {
+    const inputValue = state.inputValue.toLowerCase();
+    return options.filter((option) => option.title.toLowerCase().includes(inputValue) || option.group.toLowerCase().includes(inputValue));
   };
 
-  const handleLowLevelChange = (_, value: GroupOption | null) => {
-    setSchemaSelection(value);
-    onChange({ topLevel: topLevelSelection, midLevel: midLevelSelection, schemaSelection: value });
-  };
-
-  const topLevelOptions = isSuccess ? data : [];
-  const midLevelOptions = topLevelSelection ? topLevelSelection.children ?? [] : [];
-  const lowLevelOptions = midLevelSelection ? midLevelSelection.children ?? [] : [];
-
-  const schemaOptions = flattenData(lowLevelOptions);
   return (
-    <Box sx={{ display: 'flex', gap: '10vh' }}>
-      <Autocomplete
-        options={topLevelOptions}
-        getOptionLabel={(option) => option.name ?? ''}
-        renderInput={(params) => <TextField {...params} label="Select Top Level" />}
-        onChange={handleTopLevelChange}
-        value={topLevelSelection}
-        sx={{ width: 500 }}
-      />
-      <Autocomplete
-        options={midLevelOptions}
-        getOptionLabel={(option) => option.name ?? ''}
-        renderInput={(params) => <TextField {...params} label="Select Mid Level" />}
-        onChange={handleMidLevelChange}
-        value={midLevelSelection}
-        sx={{ width: 500 }}
-        disabled={!topLevelSelection}
-      />
-
-      <Autocomplete
-        id="grouped-demo"
-        value={schemaSelection}
-        options={schemaOptions.sort((a, b) => -b.group.localeCompare(a.group))}
-        groupBy={(option) => option.group}
-        getOptionLabel={(option) => option.title}
-        sx={{ width: 500 }}
-        renderInput={(params) => <TextField {...params} label="Select Schema" />}
-        renderGroup={(params) => (
-          <Box key={params.key}>
-            <ListSubheader>{params.group}</ListSubheader>
-            {params.children}
-          </Box>
-        )}
-        disabled={!midLevelSelection}
-        isOptionEqualToValue={(option, value) => option.id === value?.id}
-        onChange={handleLowLevelChange}
-      />
-    </Box>
+    <Autocomplete
+      id="select-schema"
+      value={initialSelection}
+      options={options.sort((a, b) => -b.group.localeCompare(a.group))}
+      groupBy={(option) => option.group}
+      getOptionLabel={(option) => option.id}
+      renderInput={(params) => <TextField {...params} label="Select Schema" error={!!error} helperText={error} />}
+      renderGroup={(params) => (
+        <Box key={params.key}>
+          <ListSubheader>{params.group}</ListSubheader>
+          {params.children}
+        </Box>
+      )}
+      filterOptions={filterOptions}
+      isOptionEqualToValue={(option, value) => option.id === value?.id}
+      onChange={handleSelectChange}
+    />
   );
 };
