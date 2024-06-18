@@ -1,8 +1,8 @@
 import { EditorProps, Editor, OnChange, OnMount } from '@monaco-editor/react';
-import { editor } from 'monaco-editor';
+import { editor, languages } from 'monaco-editor';
 import { useState } from 'react';
 
-type MonacoEditorProps = EditorProps & { readonly?: boolean };
+type MonacoEditorProps = EditorProps & { readonly?: boolean; diagnosticOptions?: languages.json.DiagnosticsOptions };
 
 export const MonacoEditor: React.FC<MonacoEditorProps> = (editProps) => {
   const { readonly = false, onChange, theme } = editProps;
@@ -23,15 +23,17 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editProps) => {
   };
 
   return (
-    <Editor
-      width={'100%'}
-      defaultLanguage={'json'}
-      theme={theme ?? 'vs-dark'}
-      value={code}
-      options={options}
-      {...editProps}
-      onChange={handleCodeChange}
-      onMount={editorDidMount}
-    />
+    <>
+      <Editor
+        width={'100%'}
+        defaultLanguage={'json'}
+        theme={theme ?? 'vs-dark'}
+        value={code}
+        options={options}
+        {...editProps}
+        onChange={handleCodeChange}
+        onMount={editorDidMount}
+      />
+    </>
   );
 };

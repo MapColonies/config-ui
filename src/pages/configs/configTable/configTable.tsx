@@ -42,11 +42,14 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       label: 'Schema',
       sortable: true,
       render: (row: TableConfigData) => (
-        <Link to={`/schema/view?id=${row.schemaId}`}>
-          <Tooltip title={row.schemaId} placement="top-start">
-            <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
-          </Tooltip>
-        </Link>
+        <Box className={Styles.configSchemaColumn}>
+          <Link to={`/schema/view?id=${row.schemaId}`}>
+            <Tooltip title={row.schemaId} placement="top-start">
+              <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
+            </Tooltip>
+          </Link>
+          <ClipboardCopyButton text={row.schemaId} />
+        </Box>
       ),
     },
     { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date(value).toLocaleString() },

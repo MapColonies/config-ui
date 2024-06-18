@@ -1,3 +1,3 @@
-export const jsonFormatter = (data: unknown) => {
-  return JSON.stringify(JSON.parse(JSON.stringify(data)), null, 2);
+export const jsonFormatter = (data: unknown | undefined) => {
+  return JSON.stringify(data, null, 2);
 };

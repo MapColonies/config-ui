@@ -275,7 +275,6 @@ export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): 
     511: 'Network Authentication Required',
     ...options.errors,
   };
-
   const error = errors[result.status];
   if (error) {
     throw new ApiError(options, result, error);
@@ -331,9 +330,11 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
 
         catchErrorCodes(options, result);
 
-        resolve(result.body);
+        resolve(result.body as T);
       }
     } catch (error) {
+      (error as ApiError).message = ((error as ApiError).body as { message: string })?.message ?? (error as ApiError).message;
+      console.log((error as ApiError).body);
       reject(error);
     }
   });

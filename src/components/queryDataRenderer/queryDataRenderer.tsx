@@ -1,9 +1,9 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 type QueryDataRendererProps = {
-  isLoading: boolean;
-  error: Error | null;
-  isSuccess: boolean;
+  isLoading?: boolean;
+  error?: Error | null;
+  isSuccess?: boolean;
   children: React.ReactNode;
 };
 
