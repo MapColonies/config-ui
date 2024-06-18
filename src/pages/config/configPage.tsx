@@ -5,7 +5,7 @@ import { ViewConfigPage } from './viewConfig/viewConfig';
 import { Box, Typography } from '@mui/material';
 import { ConfigInfoPage } from './configInfo/configInfoPage';
 import { useQuery } from '@tanstack/react-query';
-import { config as Config, getVersionedConfig, version as Version } from '../../api/client';
+import { config as Config, getVersionedConfig, ParameterVersionQuery as Version } from '../../api/client';
 import { ViewConfigJsonPage } from './viewConfigJson/viewConfigJson';
 import { useCallback, useMemo } from 'react';
 import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';

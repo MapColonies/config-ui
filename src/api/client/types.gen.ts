@@ -8,7 +8,7 @@ export type configName = string;
 
 export type schemaId = string;
 
-export type version = number | 'latest';
+export type version = number;
 
 export type createdAt = string;
 

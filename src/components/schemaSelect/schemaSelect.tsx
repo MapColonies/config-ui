@@ -13,7 +13,7 @@ type SchemaSelectProps = {
 export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialValue, error }) => {
   const { data, isSuccess } = useQuery({ queryKey: ['getSchemasTree'], queryFn: () => getSchemasTree() });
 
-  const options = useMemo(() => (isSuccess ? flattenData(data) : []), [data, isSuccess]);
+  const options = useMemo(() => (isSuccess ? flattenData(data).sort((a, b) => -b.group.localeCompare(a.group)) : []), [data, isSuccess]);
 
   const initialSelection = useMemo(() => options.find((option) => option.id === initialValue) ?? null, [options, initialValue]);
 
@@ -32,7 +32,7 @@ export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialVal
     <Autocomplete
       id="select-schema"
       value={initialSelection}
-      options={options.sort((a, b) => -b.group.localeCompare(a.group))}
+      options={options}
       groupBy={(option) => option.group}
       getOptionLabel={(option) => option.id}
       renderInput={(params) => <TextField {...params} label="Select Schema" error={!!error} helperText={error} />}

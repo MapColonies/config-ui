@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { GeneralInfoForm, generalInfoFormSchema } from './step1GeneralInfo.schemas';
-import { SchemaSelect } from '../../../components/SchemaSelect/schemaSelect';
+import { SchemaSelect } from '../../../components/schemaSelect/schemaSelect';
 import { getConfigsByName } from '../../../api/client';
 import { useMutation } from '@tanstack/react-query';
 
@@ -44,21 +44,24 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
   }, [isValid, configName, version, schemaId, description, onDataChange]);
 
   useEffect(() => {
-    if (configName) {
-      getConfigByName({ name: configName })
-        .then((config) => {
-          if (config) {
-            setValue('version', String(config.version) ?? DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-          } else {
-            setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to fetch config', error);
-          setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        });
+    if (!configName) {
+      return;
     }
-    setValue('version', DefaultVersion, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+
+    let version: string = DefaultVersion;
+
+    getConfigByName({ name: configName })
+      .then((config) => {
+        if (config) {
+          version = String(config.version);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch config', error);
+      })
+      .finally(() => {
+        setValue('version', version, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+      });
   }, [configName, getConfigByName, setValue]);
 
   const handleSchemaSelectDataChange = (value: string) => {
@@ -82,10 +85,8 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           helperText={errors.configName?.message}
           {...register('configName')}
         />
-
-        {/*
-          // We need to decide how to handle the version field
-         <TextField
+        {/* // We need to decide how to handle the version field */}
+        <TextField
           hidden={true}
           hiddenLabel={true}
           id="version"
@@ -98,7 +99,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           error={!!errors.version}
           helperText={errors.version?.message}
           {...register('version')}
-        /> */}
+        />
         <TextField
           id="description"
           label="Description"
