@@ -19,14 +19,14 @@ type Step2AddConfigProps = {
 };
 
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
+  // const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
   const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: true }), [schemaId]);
 
-  const schemaWithRefsRes = useQuery({
-    queryKey: ['getSchema'],
-    queryFn: fetchSchema,
-    enabled: !!schemaId,
-  });
+  // const schemaWithRefsRes = useQuery({
+  //   queryKey: ['getSchema'],
+  //   queryFn: fetchSchema,
+  //   enabled: !!schemaId,
+  // });
 
   const { data: schema, isSuccess } = useQuery({
     queryKey: ['getSchemaWitheRefs'],
