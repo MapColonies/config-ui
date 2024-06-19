@@ -34,9 +34,6 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
     enabled: !!schemaId,
   });
 
-  console.log('Schema', schema);
-  console.log('SchemaWithRefsRes', schemaWithRefsRes.data);
-
   const monaco = useMonaco();
 
   const validate = useMemo(() => {
