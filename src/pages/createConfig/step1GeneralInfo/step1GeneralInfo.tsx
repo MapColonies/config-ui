@@ -85,7 +85,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           helperText={errors.configName?.message}
           {...register('configName')}
         />
-        {/* // We need to decide how to handle the version field */}
+        {/* // We need to decide how to handle the version field
         <TextField
           hidden={true}
           hiddenLabel={true}
@@ -95,11 +95,11 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           inputProps={{ type: 'number', min: 1, inputMode: 'numeric' }}
           inputMode="numeric"
           type="number"
-          InputProps={{ readOnly: true }}
+          // InputProps={{ readOnly: true }}
           error={!!errors.version}
           helperText={errors.version?.message}
           {...register('version')}
-        />
+        /> */}
         <TextField
           id="description"
           label="Description"

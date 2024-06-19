@@ -7,6 +7,7 @@ import { MonacoEditor } from '../../../components/monacoEditor/monacoEditor';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useMonaco } from '@monaco-editor/react';
 import { ConfigData } from '../createConfig.types';
+import { registerRefSnippet } from '../../../utils/monaco/snippetsRegistration/registerRefSnippet';
 
 const ajvInstance = new ajv();
 
@@ -18,12 +19,23 @@ type Step2AddConfigProps = {
 };
 
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: true }), [schemaId]);
+  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
+  const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: true }), [schemaId]);
+
+  const schemaWithRefsRes = useQuery({
+    queryKey: ['getSchema'],
+    queryFn: fetchSchema,
+    enabled: !!schemaId,
+  });
 
   const { data: schema, isSuccess } = useQuery({
-    queryKey: ['getSchema2'],
-    queryFn: fetchSchema,
+    queryKey: ['getSchemaWitheRefs'],
+    queryFn: fetchSchemaDereference,
+    enabled: !!schemaId,
   });
+
+  console.log('Schema', schema);
+  console.log('SchemaWithRefsRes', schemaWithRefsRes.data);
 
   const monaco = useMonaco();
 
@@ -49,9 +61,17 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
   }, [schema, isSuccess, schemaId]);
 
   useEffect(() => {
-    if (monaco) {
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions(diagnosticOptions);
+    const shouldRegister = monaco?.languages.json.jsonDefaults.diagnosticsOptions.schemas?.length === 0;
+    if (shouldRegister) {
+      registerRefSnippet(monaco);
     }
+  }, [diagnosticOptions, monaco]);
+
+  useEffect(() => {
+    if (!monaco) {
+      return;
+    }
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions(diagnosticOptions);
   }, [diagnosticOptions, monaco]);
 
   const handleChange = async (value: string | undefined) => {

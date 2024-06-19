@@ -7,14 +7,17 @@ import { Step3ReviewAndApprove } from './step3ReviewAndApprove/step3ReviewAndApp
 import { useCallback, useEffect, useState } from 'react';
 import { ConfigData, StepEnum } from './createConfig.types';
 import { StepSequence } from '../../components/HorizontalLinearStepper/step.types';
-import { UpsertConfigData, upsertConfig } from '../../api/client';
+import { ApiError, UpsertConfigData, upsertConfig } from '../../api/client';
 import { useMutation } from '@tanstack/react-query';
 import { GeneralInfoForm } from './step1GeneralInfo/step1GeneralInfo.schemas';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../routing/routes';
+import { useSnackbar } from 'notistack';
+import { snackBarErrorOptions, snackBarSuccessOptions } from '../../utils/notistack';
 
 export const CreateConfigsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [currentStep, setCurrentStep] = useState<StepEnum>(StepEnum.STEP1);
   const [step1GeneralInfoData, setStep1GeneralInfoData] = useState<GeneralInfoForm | undefined>(undefined);
   const [isStep1Valid, setIsStep1Valid] = useState<boolean>(false);
@@ -22,7 +25,7 @@ export const CreateConfigsPage: React.FC = () => {
   const [step2JsonStringData, setStep2JsonStringData] = useState<string | undefined>(undefined);
   const [isStep2Valid, setIsStep2Valid] = useState<boolean>(false);
 
-  const { mutateAsync: createConfig, isError, error } = useMutation({ mutationFn: upsertConfig });
+  const { mutateAsync: createConfig } = useMutation({ mutationFn: upsertConfig });
 
   useEffect(() => {
     setStep2JsonStringData(undefined);
@@ -90,7 +93,14 @@ export const CreateConfigsPage: React.FC = () => {
     try {
       await createConfig(upsertData, {
         onSuccess: () => {
+          enqueueSnackbar('Config created successfully', snackBarSuccessOptions);
           navigate(`${routes.CONFIG}/${upsertData.requestBody.configName}/latest`);
+        },
+        onError: (e) => {
+          if (e instanceof ApiError) {
+            const message = (e.body as { message: string }).message;
+            enqueueSnackbar(message ?? 'Failed To Create Config', snackBarErrorOptions);
+          }
         },
       });
       return true;
@@ -98,7 +108,7 @@ export const CreateConfigsPage: React.FC = () => {
       console.log(e);
       return false;
     }
-  }, [step1GeneralInfoData, step2AddConfigData, createConfig, navigate]);
+  }, [step1GeneralInfoData, step2AddConfigData, createConfig, navigate, enqueueSnackbar]);
 
   const handleReset = () => {
     setCurrentStep(StepEnum.STEP1);
@@ -113,7 +123,6 @@ export const CreateConfigsPage: React.FC = () => {
     <Box className={Styles.createConfigContainer}>
       <Typography variant="h3">Create Config</Typography>
       <Box flexGrow={1}>{steps[currentStep].component}</Box>
-      {isError && <Box sx={{ color: 'red' }}>{error.message}</Box>}
       <Box>
         <HorizontalLinearStepper
           className={Styles.stepper}

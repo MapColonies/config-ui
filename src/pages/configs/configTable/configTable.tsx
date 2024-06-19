@@ -62,7 +62,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
         <>
           <ActionMenu>
             <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}`)}>View Config</MenuItem>
-            <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create New Config</MenuItem>
+            <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create New Version</MenuItem>
             <MenuItem>Rollback To Version</MenuItem>
           </ActionMenu>
         </>

@@ -333,8 +333,6 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
         resolve(result.body as T);
       }
     } catch (error) {
-      (error as ApiError).message = ((error as ApiError).body as { message: string })?.message ?? (error as ApiError).message;
-      console.log((error as ApiError).body);
       reject(error);
     }
   });
