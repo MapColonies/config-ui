@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Button } from '@mui/material';
+import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Button, Tooltip } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Link } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
@@ -45,9 +45,11 @@ const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
           {row.children ? (
             row.name
           ) : (
-            <Button component={Link} variant="outlined" to={`/schema/view?id=${row.id}`}>
-              {row.name}
-            </Button>
+            <Tooltip title={row.id} placement="top-start">
+              <Button component={Link} variant="outlined" to={`/schema/view?id=${row.id}`}>
+                {row.name}
+              </Button>
+            </Tooltip>
           )}
         </TableCell>
         <TableCell component="th" scope="row" sx={{ alignItems: 'center' }}></TableCell>
