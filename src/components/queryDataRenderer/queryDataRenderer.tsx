@@ -19,7 +19,7 @@ type QueryDataRendererProps = {
  * @returns {ReactNode} The rendered component based on the query status.
  */
 export const QueryDataRenderer: React.FC<QueryDataRendererProps> = ({ isLoading, error, isSuccess, children }) => {
-  if (isLoading) {
+  if (isLoading ?? false) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
@@ -35,7 +35,7 @@ export const QueryDataRenderer: React.FC<QueryDataRendererProps> = ({ isLoading,
     );
   }
 
-  if (isSuccess) {
+  if (isSuccess ?? false) {
     return <>{children}</>;
   }
 

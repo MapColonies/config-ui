@@ -35,7 +35,7 @@ export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialVal
       options={options}
       groupBy={(option) => option.group}
       getOptionLabel={(option) => option.id}
-      renderInput={(params) => <TextField {...params} label="Select Schema" error={!!error} helperText={error} />}
+      renderInput={(params) => <TextField {...params} label="Select Schema" error={!!(error ?? '')} helperText={error} />}
       renderGroup={(params) => (
         <Box key={params.key}>
           <ListSubheader>{params.group}</ListSubheader>
@@ -43,7 +43,7 @@ export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialVal
         </Box>
       )}
       filterOptions={filterOptions}
-      isOptionEqualToValue={(option, value) => option.id === value?.id}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
       onChange={handleSelectChange}
     />
   );

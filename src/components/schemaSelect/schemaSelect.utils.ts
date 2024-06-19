@@ -1,10 +1,10 @@
 import { schemaTree, schemaTreeDir, schemaTreeItem } from '../../api/client';
 
-export interface GroupOption {
+export type GroupOption = {
   title: string;
   id: string;
   group: string;
-}
+};
 
 export const flattenData = (data: schemaTree, parentName: string = ''): GroupOption[] => {
   let options: GroupOption[] = [];
@@ -15,7 +15,7 @@ export const flattenData = (data: schemaTree, parentName: string = ''): GroupOpt
         options = options.concat(flattenData(item.children, groupName));
       }
     } else if (isSchemaTreeItem(item)) {
-      if (item.name && item.id) {
+      if (item.name != null && item.id != null) {
         options.push({
           title: item.name,
           id: item.id,
@@ -29,9 +29,9 @@ export const flattenData = (data: schemaTree, parentName: string = ''): GroupOpt
 
 // Type guards to check if an object is a schemaTreeDir or schemaTreeItem
 function isSchemaTreeDir(item: schemaTreeDir | schemaTreeItem): item is schemaTreeDir {
-  return item && typeof item === 'object' && 'children' in item;
+  return typeof item === 'object' && 'children' in item;
 }
 
 function isSchemaTreeItem(item: schemaTreeDir | schemaTreeItem): item is schemaTreeItem {
-  return item && typeof item === 'object' && 'id' in item;
+  return typeof item === 'object' && 'id' in item;
 }

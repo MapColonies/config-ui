@@ -24,7 +24,7 @@ export const CustomTabs: React.FC<CustomTabsProps> = ({ tabs }) => {
           <Tab key={tab.path} label={tab.label} value={tab.path} component={Link} to={tab.path} />
         ))}
       </Tabs>
-      {currentTab && <Box sx={{ width: '100%' }}>{tabs.find((tab) => tab.path === currentTab)?.component}</Box>}
+      {currentTab !== null && <Box sx={{ width: '100%' }}>{tabs.find((tab) => tab.path === currentTab)?.component}</Box>}
     </>
   );
 };
