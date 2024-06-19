@@ -52,9 +52,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
 
     getConfigByName({ name: configName })
       .then((config) => {
-        if (config) {
-          version = String(config.version);
-        }
+        version = String(config.version);
       })
       .catch((error) => {
         console.error('Failed to fetch config', error);

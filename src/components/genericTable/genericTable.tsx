@@ -50,7 +50,7 @@ export const GenericTable = <T extends PrimitiveObject>({ data, columns }: Gener
                     className={Styles.tableColumn}
                     active={orderBy === column.id}
                     direction={orderBy === column.id ? order : 'asc'}
-                    disabled={!column.sortable}
+                    disabled={!(column.sortable ?? false)}
                     onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
                   >
                     {column.label}

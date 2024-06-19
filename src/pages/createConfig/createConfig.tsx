@@ -98,9 +98,10 @@ export const CreateConfigsPage: React.FC = () => {
         },
         onError: (e) => {
           if (e instanceof ApiError) {
-            const message = (e.body as { message: string }).message;
-            enqueueSnackbar(message ?? 'Failed To Create Config', snackBarErrorOptions);
+            const message = (e.body as { message?: string | undefined }).message;
+            return enqueueSnackbar(message ?? 'Failed To Create Config', snackBarErrorOptions);
           }
+          enqueueSnackbar('Failed To Create Config', snackBarErrorOptions);
         },
       });
       return true;
