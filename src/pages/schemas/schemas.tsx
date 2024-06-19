@@ -9,7 +9,7 @@ export const SchemasPage: React.FC = () => {
   return (
     <>
       <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Typography variant="h5">Schemas Page</Typography>
+        <Typography variant="h4">Schemas Page</Typography>
       </Toolbar>
 
       <Box sx={{ overflowY: 'auto', height: '80vh' }}>

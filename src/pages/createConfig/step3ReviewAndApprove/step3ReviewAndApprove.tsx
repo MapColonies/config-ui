@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 export const Step3ReviewAndApprove: React.FC = () => {
   return (
     <Box>
-      <Typography align="center" variant="h4">
+      <Typography align="center" variant="h5">
         Review & Approve Step 3
       </Typography>
 

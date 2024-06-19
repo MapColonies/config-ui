@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Toolbar, Typography } from '@mui/material';
 import { HorizontalLinearStepper } from '../../components/HorizontalLinearStepper/horizontalLinearStepper';
 import Styles from './createConfig.module.scss';
 import { Step1GeneralInfo } from './step1GeneralInfo/step1GeneralInfo';
@@ -122,7 +122,9 @@ export const CreateConfigsPage: React.FC = () => {
 
   return (
     <Box className={Styles.createConfigContainer}>
-      <Typography variant="h3">Create Config</Typography>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Typography variant="h4">Create Config</Typography>
+      </Toolbar>
       <Box flexGrow={1}>{steps[currentStep].component}</Box>
       <Box>
         <HorizontalLinearStepper

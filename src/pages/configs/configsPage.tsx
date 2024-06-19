@@ -14,7 +14,7 @@ export const ConfigsPage: React.FC = () => {
     <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
       <Paper>
         <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Typography variant="h5">Configs Page</Typography>
+          <Typography variant="h4">Configs Page</Typography>
         </Toolbar>
         <Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button variant="contained" color="primary" component={Link} to={routes.CREATE_CONFIG}>

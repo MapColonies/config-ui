@@ -85,7 +85,7 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
 
   return (
     <Box key={schemaId}>
-      <Typography align="center" variant="h4">
+      <Typography align="center" variant="h5">
         {'Add Config Step 2'}
       </Typography>
       <MonacoEditor value={initialJsonStringData} onChange={handleChange} height={'70vh'} />
