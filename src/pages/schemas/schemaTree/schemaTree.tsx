@@ -1,8 +1,9 @@
 import React from 'react';
-import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Button, Tooltip } from '@mui/material';
+import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Button, Tooltip, Chip, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Link } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
+import Style from './schemaTree.module.scss';
 
 export type NestedData = {
   name: string;
@@ -15,19 +16,39 @@ type NestedTableProps = {
 };
 
 const NestedTable: React.FC<NestedTableProps> = ({ data }) => {
+  const lastChildren = data.filter((item) => !item.children).map((item) => <LastChild key={item.name} data={item} />);
+  const nestedRows = data.filter((item) => item.children).map((item) => <NestedTableRow key={item.name} row={item} />);
+
   return (
     <TableContainer>
-      <Table>
-        {data.map((item) => (
-          <NestedTableRow key={item.name} row={item} />
-        ))}
-      </Table>
+      <Table>{nestedRows}</Table>
+      <Stack direction={'row'} spacing={1} mt={1}>
+        {lastChildren}
+      </Stack>
     </TableContainer>
   );
 };
 
 type NestedTableRowProps = {
   row: NestedData;
+};
+
+const LastChild: React.FC<{ data: NestedData }> = ({ data }) => {
+  return (
+    <>
+      <Tooltip title={data.id} placement="top-start">
+        <Chip
+          className={Style.chip}
+          sx={{ textDecoration: 'none' }}
+          clickable
+          label={data.name}
+          component={Link}
+          variant="filled"
+          to={`/schema/view?id=${data.id}`}
+        />
+      </Tooltip>
+    </>
+  );
 };
 
 const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
@@ -42,15 +63,7 @@ const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
               {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowRight />}
             </IconButton>
           )}
-          {row.children ? (
-            row.name
-          ) : (
-            <Tooltip title={row.id} placement="top-start">
-              <Button component={Link} variant="outlined" to={`/schema/view?id=${row.id}`}>
-                {row.name}
-              </Button>
-            </Tooltip>
-          )}
+          {row.name}
         </TableCell>
         <TableCell component="th" scope="row" sx={{ alignItems: 'center' }}></TableCell>
         <TableCell align="right">{/* Add any additional cell content here, like actions or icons */}</TableCell>
