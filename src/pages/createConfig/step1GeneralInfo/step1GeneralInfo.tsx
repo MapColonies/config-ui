@@ -69,7 +69,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
 
   return (
     <Box component={'form'}>
-      <Typography align="center" variant="h4">
+      <Typography align="center" variant="h5">
         {'General Info Step 1'}
       </Typography>
 

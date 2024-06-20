@@ -19,23 +19,20 @@ type Step2AddConfigProps = {
 };
 
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
+  // const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
   const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: true }), [schemaId]);
 
-  const schemaWithRefsRes = useQuery({
-    queryKey: ['getSchema'],
-    queryFn: fetchSchema,
-    enabled: !!schemaId,
-  });
+  // const schemaWithRefsRes = useQuery({
+  //   queryKey: ['getSchema'],
+  //   queryFn: fetchSchema,
+  //   enabled: !!schemaId,
+  // });
 
   const { data: schema, isSuccess } = useQuery({
     queryKey: ['getSchemaWitheRefs'],
     queryFn: fetchSchemaDereference,
     enabled: !!schemaId,
   });
-
-  console.log('Schema', schema);
-  console.log('SchemaWithRefsRes', schemaWithRefsRes.data);
 
   const monaco = useMonaco();
 
@@ -88,7 +85,7 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
 
   return (
     <Box key={schemaId}>
-      <Typography align="center" variant="h4">
+      <Typography align="center" variant="h5">
         {'Add Config Step 2'}
       </Typography>
       <MonacoEditor value={initialJsonStringData} onChange={handleChange} height={'70vh'} />

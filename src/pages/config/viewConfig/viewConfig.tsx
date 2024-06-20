@@ -13,7 +13,7 @@ type ViewConfigPageProps = {
 
 export const ViewConfigPage: React.FC<ViewConfigPageProps> = ({ configInfo }) => {
   const { data, isLoading, isSuccess, error } = useQuery({
-    queryKey: ['getSchema'],
+    queryKey: ['viewConfigGetSchema', configInfo.schemaId],
     queryFn: () => getSchema({ id: configInfo.schemaId, shouldDereference: true }),
   });
 

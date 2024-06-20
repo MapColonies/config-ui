@@ -47,6 +47,7 @@ export const ConfigPage: React.FC = () => {
     queryKey: ['versionedConfig'],
     queryFn: fetchVersionedConfig,
   });
+
   return (
     <Box>
       <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
