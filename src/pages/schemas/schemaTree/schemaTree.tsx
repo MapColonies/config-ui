@@ -22,7 +22,7 @@ const NestedTable: React.FC<NestedTableProps> = ({ data }) => {
   return (
     <TableContainer>
       <Table>{nestedRows}</Table>
-      <Stack direction={'row'} spacing={1} mt={1}>
+      <Stack direction={'row'} spacing={1} mt={1} flexWrap={'wrap'} useFlexGap>
         {lastChildren}
       </Stack>
     </TableContainer>
