@@ -4,7 +4,7 @@ import { routes } from './routes';
 import { ConfigsPage } from '../pages/configs/configsPage';
 import { SchemasPage } from '../pages/schemas/schemas';
 import { NotFoundPage } from '../pages/notFound/notFound';
-import { ViewSchemaPage } from '../pages/viewSchema/viewSchema';
+import { ViewSchemaPage } from '../pages/viewSchema/ViewSchemaPage';
 import { CreateConfigsPage } from '../pages/createConfig/createConfig';
 import { Layout } from '../layout/layout';
 import { ConfigPage } from '../pages/config/configPage';

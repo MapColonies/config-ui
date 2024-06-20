@@ -43,7 +43,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       sortable: true,
       render: (row: TableConfigData) => (
         <Box className={Styles.configSchemaColumn}>
-          <Link to={`/schema/view?id=${row.schemaId}`}>
+          <Link to={`/schema/view?schemaId=${row.schemaId}`}>
             <Tooltip title={row.schemaId} placement="top-start">
               <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
             </Tooltip>

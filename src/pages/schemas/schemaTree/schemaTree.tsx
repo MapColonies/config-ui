@@ -45,7 +45,7 @@ const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
           {row.children ? (
             row.name
           ) : (
-            <Button component={Link} variant="outlined" to={`/schema/view?id=${row.id}`}>
+            <Button component={Link} variant="outlined" to={`/schema/view?schemaId=${row.id}`}>
               {row.name}
             </Button>
           )}
