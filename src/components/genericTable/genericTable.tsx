@@ -39,9 +39,8 @@ export const GenericTable = <T extends PrimitiveObject>({ data, columns }: Gener
 
   return (
     <Paper>
-      <Box></Box>
-      <TableContainer>
-        <Table>
+      <TableContainer sx={{ maxHeight: '80vh' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
