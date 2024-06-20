@@ -1,8 +1,9 @@
 import React from 'react';
-import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Button } from '@mui/material';
+import { Table, TableCell, TableContainer, TableRow, IconButton, Collapse, Box, Tooltip, Chip, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Link } from 'react-router-dom';
 import { KeyboardArrowRight } from '@mui/icons-material';
+import Style from './schemaTree.module.scss';
 
 export type NestedData = {
   name: string;
@@ -15,19 +16,39 @@ type NestedTableProps = {
 };
 
 const NestedTable: React.FC<NestedTableProps> = ({ data }) => {
+  const lastChildren = data.filter((item) => !item.children).map((item) => <LastChild key={item.name} data={item} />);
+  const nestedRows = data.filter((item) => item.children).map((item) => <NestedTableRow key={item.name} row={item} />);
+
   return (
     <TableContainer>
-      <Table>
-        {data.map((item) => (
-          <NestedTableRow key={item.name} row={item} />
-        ))}
-      </Table>
+      <Table>{nestedRows}</Table>
+      <Stack direction={'row'} spacing={1} mt={1} flexWrap={'wrap'} useFlexGap>
+        {lastChildren}
+      </Stack>
     </TableContainer>
   );
 };
 
 type NestedTableRowProps = {
   row: NestedData;
+};
+
+const LastChild: React.FC<{ data: NestedData }> = ({ data }) => {
+  return (
+    <>
+      <Tooltip title={data.id} placement="top-start">
+        <Chip
+          className={Style.chip}
+          sx={{ textDecoration: 'none' }}
+          clickable
+          label={data.name}
+          component={Link}
+          variant="filled"
+          to={`/schema/view?schemaId=${data.id}`}
+        />
+      </Tooltip>
+    </>
+  );
 };
 
 const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
@@ -42,13 +63,7 @@ const NestedTableRow: React.FC<NestedTableRowProps> = ({ row }) => {
               {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowRight />}
             </IconButton>
           )}
-          {row.children ? (
-            row.name
-          ) : (
-            <Button component={Link} variant="outlined" to={`/schema/view?schemaId=${row.id}`}>
-              {row.name}
-            </Button>
-          )}
+          {row.name}
         </TableCell>
         <TableCell component="th" scope="row" sx={{ alignItems: 'center' }}></TableCell>
         <TableCell align="right">{/* Add any additional cell content here, like actions or icons */}</TableCell>

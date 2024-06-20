@@ -25,13 +25,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const drawerItems: DrawerItem[] = [
     {
       id: 1,
-      text: 'Config',
+      text: 'Configs',
       icon: <ConfigIcon />,
       navigatePath: routes.CONFIG,
     },
     {
       id: 2,
-      text: 'Schema',
+      text: 'Schemas',
       icon: <SchemaIcon />,
       navigatePath: routes.SCHEMA,
     },
