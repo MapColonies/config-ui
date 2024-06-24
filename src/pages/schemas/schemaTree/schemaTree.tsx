@@ -44,7 +44,7 @@ const LastChild: React.FC<{ data: NestedData }> = ({ data }) => {
           label={data.name}
           component={Link}
           variant="filled"
-          to={`/schema/view?id=${data.id}`}
+          to={`/schema/view?schemaId=${data.id}`}
         />
       </Tooltip>
     </>
