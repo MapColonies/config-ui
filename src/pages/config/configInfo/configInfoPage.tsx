@@ -40,7 +40,7 @@ export const ConfigInfoPage: React.FC<ConfigInfoPageProps> = ({ configInfo }) =>
   const configInfoList: ListData[] = [
     { key: 'Name', value: configInfo.configName },
     { key: 'Version', value: configInfo.version },
-    { key: 'Schema', value: <Link to={`/schema/view?id=${configInfo.schemaId}`}>{configInfo.schemaId}</Link> },
+    { key: 'Schema', value: <Link to={`/schema/view?schemaId=${configInfo.schemaId}`}>{configInfo.schemaId}</Link> },
     { key: 'Owner', value: configInfo.createdBy },
     { key: 'Created At', value: new Date(configInfo.createdAt).toLocaleString() },
   ];

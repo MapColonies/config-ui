@@ -6,9 +6,9 @@ import { Box, Typography } from '@mui/material';
 import { ConfigInfoPage } from './configInfo/configInfoPage';
 import { useQuery } from '@tanstack/react-query';
 import { config as Config, getVersionedConfig, ParameterVersionQuery as Version } from '../../api/client';
-import { ViewConfigJsonPage } from './viewConfigJson/viewConfigJson';
 import { useCallback, useMemo } from 'react';
 import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataRenderer';
+import { MonacoViewer } from '../../components/MonacoViewer/monacoViewer';
 
 type ConfigPageTabsProps = {
   configInfo: Config;
@@ -27,7 +27,7 @@ const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ configInfo, processedVe
     {
       label: 'JSON',
       path: encodeURI(`${routes.CONFIG}/${name}/${processedVersion}/json`),
-      component: <ViewConfigJsonPage config={configInfo.config} />,
+      component: <MonacoViewer viewData={configInfo.config} />,
     },
   ];
   return <CustomTabs tabs={tabs} />;

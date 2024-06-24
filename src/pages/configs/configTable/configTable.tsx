@@ -43,7 +43,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       sortable: true,
       render: (row: TableConfigData) => (
         <Box className={Styles.configSchemaColumn}>
-          <Link to={`/schema/view?id=${row.schemaId}`}>
+          <Link to={`/schema/view?schemaId=${row.schemaId}`}>
             <Tooltip title={row.schemaId} placement="top-start">
               <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
             </Tooltip>
@@ -62,8 +62,10 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
         <>
           <ActionMenu>
             <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}`)}>View Config</MenuItem>
-            <MenuItem onClick={() => navigate(routes.CREATE_CONFIG)}>Create New Version</MenuItem>
-            <MenuItem>Rollback To Version</MenuItem>
+            <MenuItem disabled={true} onClick={() => navigate(routes.CREATE_CONFIG)}>
+              Create New Version
+            </MenuItem>
+            <MenuItem disabled={true}>Rollback To Version</MenuItem>
           </ActionMenu>
         </>
       ),
