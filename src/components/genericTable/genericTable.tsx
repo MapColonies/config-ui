@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Styles from './genericTable.module.scss';
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
 type PrimitiveObject = Record<string, string | number | boolean>;
 
@@ -39,9 +39,8 @@ export const GenericTable = <T extends PrimitiveObject>({ data, columns }: Gener
 
   return (
     <Paper>
-      <Box></Box>
-      <TableContainer>
-        <Table>
+      <TableContainer sx={{ maxHeight: '80vh' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
