@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
-import { queryClient } from '../../api/tanstack/queryClient';
 import { jsonFormatter } from '../jsonFormatter';
-import { getVersionedConfig, GetVersionedConfigData, GetVersionedConfigResponse, version as Version } from '../../api/client';
+import { GetVersionedConfigData } from '../../api/client';
+import { calcConfigVersion, fetchConfigData } from '../../api/services/configDataFetcher';
 
 type RefObject = {
   $ref: {
@@ -34,13 +34,13 @@ export const extractRefConfigObject = (text: string): { configName: string; vers
   };
 };
 
-async function dereferenceObject(obj: JsonValue): Promise<JsonValue> {
+async function dereferenceObject(obj: JsonValue, depth: number = 0): Promise<JsonValue> {
   if (typeof obj !== 'object' || obj === null) {
     return obj;
   }
 
   if (Array.isArray(obj)) {
-    return Promise.all(obj.map(dereferenceObject));
+    return Promise.all(obj.map(async (item) => dereferenceObject(item, depth + 1)));
   }
 
   if (isRefObject(obj)) {
@@ -53,22 +53,23 @@ async function dereferenceObject(obj: JsonValue): Promise<JsonValue> {
     if (!configResponse) {
       throw new Error(`Failed to fetch config for ${configParams.name}`);
     }
-
+    // Recursively dereference the fetched config
+    const dereferencedConfig = await dereferenceObject(configResponse.config as JsonObject, depth + 1);
     // Merge the dereferenced config with other properties
     const { $ref, ...rest } = obj;
-    return { ...rest, ...(configResponse.config as JsonObject) };
+    const result = await dereferenceObject({ ...(dereferencedConfig as JsonObject), ...rest }, depth + 1);
+    return result;
   }
 
   const result: JsonObject = {};
   for (const [key, value] of Object.entries(obj)) {
-    result[key] = await dereferenceObject(value);
+    result[key] = await dereferenceObject(value, depth + 1);
   }
   return result;
 }
 
-export const dereference = async (input: string): Promise<string> => {
+export const dereferenceConfig = async (input: string): Promise<string> => {
   const parsedInput: JsonValue = JSON.parse(input);
-
   const dereferencedObject = await dereferenceObject(parsedInput);
   const modifiedInput = jsonFormatter(dereferencedObject);
   return modifiedInput;
@@ -76,35 +77,6 @@ export const dereference = async (input: string): Promise<string> => {
 
 function isRefObject(obj: JsonObject): obj is RefObject {
   return '$ref' in obj && typeof obj.$ref === 'object' && obj.$ref !== null && 'configName' in obj.$ref && 'version' in obj.$ref;
-}
-
-export async function fetchConfigData(config: GetVersionedConfigData): Promise<GetVersionedConfigResponse | undefined> {
-  const queryHash = createGetVersionedConfigQueryHash(config);
-  const cacheConfig = queryClient.getQueryCache().get<GetVersionedConfigResponse>(queryHash)?.state.data;
-  const configResponse =
-    cacheConfig ??
-    (await queryClient.fetchQuery({
-      queryKey: [getVersionedConfig.name, config.name, config.version],
-      queryFn: () => getVersionedConfig(config),
-      queryHash: queryHash,
-    }));
-
-  return configResponse;
-}
-
-export function createGetVersionedConfigQueryHash(config: GetVersionedConfigData): string {
-  return `${getVersionedConfig.name}${config.name}${config.version}`;
-}
-
-export function calcConfigVersion(stringVersion: string): Version {
-  if (stringVersion === 'latest') {
-    return 'latest';
-  }
-  try {
-    return parseInt(stringVersion);
-  } catch (e) {
-    return 0;
-  }
 }
 
 const refRegex = /"\$ref"\s*:\s*(\{[^{}]*\})/g;

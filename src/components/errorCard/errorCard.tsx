@@ -6,7 +6,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { red } from '@mui/material/colors';
 import { CardHeader, Avatar } from '@mui/material';
 
-type ErrorCardProps = {
+export type ErrorCardProps = {
   title?: string;
   errorMessage: string | undefined;
 };
@@ -15,7 +15,7 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({ errorMessage, title }) => 
   const showError = errorMessage !== undefined;
   return (
     showError && (
-      <Card sx={{ maxWidth: 345, m: 2, boxShadow: 3 }}>
+      <Card sx={{ m: 2, boxShadow: 3 }}>
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500], width: '25px', height: '25px' }}>

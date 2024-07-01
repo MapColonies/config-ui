@@ -1,6 +1,7 @@
 import { Monaco } from '@monaco-editor/react';
-import { extractRefConfig, fetchConfigData } from '../refHandler';
+import { extractRefConfig } from '../refHandler';
 import { routes } from '../../../routing/routes';
+import { fetchConfigData } from '../../../api/services/configDataFetcher';
 
 export const registerRefHoverProvider = (monaco: Monaco) => {
   return monaco.languages.registerHoverProvider('json', {
@@ -18,12 +19,11 @@ export const registerRefHoverProvider = (monaco: Monaco) => {
         }
 
         const cacheConfig = await fetchConfigData(refDetails);
-        console.log('cacheConfig', cacheConfig);
 
         if (!cacheConfig) {
           throw new Error('Config not found');
         }
-        const schemaPageLink = `${routes.VIEW_SCHEMA}?schemaId=${cacheConfig.schemaId}`;
+        const schemaPageLink = `${window.origin}${routes.VIEW_SCHEMA}?schemaId=${cacheConfig.schemaId}`;
         const linkToSchema = `[${cacheConfig.schemaId}](${schemaPageLink})`;
         return {
           range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),

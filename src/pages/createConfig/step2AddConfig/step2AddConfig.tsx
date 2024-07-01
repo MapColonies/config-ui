@@ -1,18 +1,15 @@
-import { Box, Card, LinearProgress, Typography } from '@mui/material';
-import { languages } from 'monaco-editor';
+import { Box, Card, Typography } from '@mui/material';
 import ajv from 'ajv';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, getSchema } from '../../../api/client';
 import { MonacoEditor } from '../../../components/monacoEditor/monacoEditor';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useMonaco } from '@monaco-editor/react';
+import { useCallback, useMemo, useState } from 'react';
 import { ConfigData } from '../createConfig.types';
-import { registerRefSnippet } from '../../../utils/monaco/register/registerRefSnippet';
-import { dereference, isRef } from '../../../utils/monaco/refHandler';
-import { ErrorCard } from '../../../components/errorCard/errorCard';
-import { registerRefHoverProvider } from '../../../utils/monaco/register/registerRefHoverProvider';
+import { dereferenceConfig, isRef } from '../../../utils/monaco/refHandler';
+import { ErrorCard, ErrorCardProps } from '../../../components/errorCard/errorCard';
+import { ErrorType } from '../../../components/errorCard/error.types';
 
-const ajvInstance = new ajv();
+const ajvInstance = new ajv({ keywords: ['x-env-value'], discriminator: true });
 
 type Step2AddConfigProps = {
   schemaId: string;
@@ -21,103 +18,65 @@ type Step2AddConfigProps = {
   initialJsonStringData?: string | undefined;
 };
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const monaco = useMonaco();
-
   const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: true }), [schemaId]);
-  const { data: schema, isSuccess } = useQuery({
+  const { data: schema } = useQuery({
     queryKey: ['getSchemaWitheRefs'],
     queryFn: fetchSchemaDereference,
     enabled: !!schemaId,
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [initProgressBar, setInitProgressBar] = useState<boolean>(false);
-  const [validationError, setValidationError] = useState<string | undefined>(undefined);
-  const [jsonParseError, setJsonParseError] = useState<string | undefined>(undefined);
-  const [networkError, setNetworkError] = useState<string | undefined>(undefined);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [errors, setErrors] = useState<ErrorCardProps[]>([]);
 
   const validateJson = useMemo(() => {
     const validate = ajvInstance.compile(schema ?? {});
     return async (data: unknown) => {
       const isValid = validate(data);
-      if (!isValid) {
-        setValidationError(validate.errors?.[0].message ?? 'Unknown error');
-      } else {
-        setValidationError(undefined);
-      }
-      return isValid;
+      return { isValid, errorMessage: validate.errors?.[0].message };
     };
   }, [schema]);
 
-  const diagnosticOptions: languages.json.DiagnosticsOptions = useMemo(() => {
-    if (!isSuccess) {
-      return {};
-    }
-
-    const options: languages.json.DiagnosticsOptions = {
-      validate: true,
-      schemas: [
-        {
-          uri: schemaId,
-          schema: schema as languages.json.JSONSchema,
-          fileMatch: ['*'],
-        },
-      ],
-    };
-    return options;
-  }, [schema, isSuccess, schemaId]);
-
-  useEffect(() => {
-    if (!monaco) {
-      return;
-    }
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions(diagnosticOptions);
-    const snippetProvider = registerRefSnippet(monaco);
-    const hoverProvider = registerRefHoverProvider(monaco);
-
-    return () => {
-      snippetProvider.dispose();
-      hoverProvider.dispose();
-    };
-  }, [diagnosticOptions, monaco]);
-
-  const handleChange = async (value: string | undefined) => {
-    let jsonDereferenced = value ?? '{}';
+  const handleEditorChange = async (value: string | undefined) => {
+    const newErrors: ErrorCardProps[] = [];
+    let jsonDereferenced = value ?? '';
     onJsonStringChange(value);
 
     try {
       if (value !== undefined && isRef(value)) {
-        setIsLoading(true);
-
-        jsonDereferenced = await dereference(value);
-        setNetworkError(undefined);
+        setIsFetching(true);
+        jsonDereferenced = await dereferenceConfig(value);
       }
     } catch (error) {
       if (error instanceof ApiError) {
-        setNetworkError(error.message);
-      } else {
-        setNetworkError(undefined);
+        if (error.status === 404) {
+          newErrors.push({ title: ErrorType.VALIDATION_ERROR, errorMessage: 'Config not found' });
+        } else {
+          newErrors.push({ title: ErrorType.NETWORK_ERROR, errorMessage: error.message });
+          setErrors(newErrors);
+          onDataChange(undefined, false);
+          return;
+        }
       }
     } finally {
-      setIsLoading(false);
+      setIsFetching(false);
     }
 
     try {
-      setJsonParseError(undefined);
       const json = JSON.parse(jsonDereferenced);
-      const isValid = await validateJson(json);
+      const { isValid, errorMessage } = await validateJson(json);
       onDataChange(json, isValid);
+      if (!isValid) {
+        newErrors.push({ title: ErrorType.VALIDATION_ERROR, errorMessage: errorMessage });
+      }
     } catch (error) {
       let errMessage = 'Error parsing JSON';
       if (error instanceof Error) {
         errMessage = error.message;
       }
-      if (error instanceof SyntaxError) {
-        errMessage = error.message;
-      }
-      setJsonParseError(errMessage);
+      newErrors.push({ title: ErrorType.JSON_PARSE_ERROR, errorMessage: errMessage });
       onDataChange(undefined, false);
     }
+    setErrors(newErrors);
   };
 
   return (
@@ -125,22 +84,19 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
       <Typography align="center" variant="h5">
         {'Add Config Step 2'}
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          {initProgressBar && <LinearProgress value={100} variant={isLoading ? 'indeterminate' : 'determinate'} />}
-          <MonacoEditor
-            beforeMount={() => setInitProgressBar(true)}
-            defaultValue={initialJsonStringData ?? '{}'}
-            onChange={handleChange}
-            height={'70vh'}
-            width={'150vh'}
-          />
-        </Box>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        <MonacoEditor
+          defaultValue={initialJsonStringData ?? '{}'}
+          schema={schema}
+          onChange={handleEditorChange}
+          height={'70vh'}
+          isFetching={isFetching}
+        />
 
-        <Card sx={{ width: '100%' }}>
-          <ErrorCard title={'Network Error'} errorMessage={networkError} />
-          <ErrorCard title={'Validation Error'} errorMessage={validationError} />
-          <ErrorCard title={'Parsing Error'} errorMessage={jsonParseError} />
+        <Card sx={{ width: { xs: '100%', md: '300px' } }}>
+          {errors.map((error, index) => (
+            <ErrorCard key={index} title={error.title} errorMessage={error.errorMessage} />
+          ))}
         </Card>
       </Box>
     </Box>
