@@ -8,7 +8,7 @@ export const Step3ReviewAndApprove: React.FC = () => {
       </Typography>
 
       <Typography align="center" variant="h6">
-        {'Will Be available soon (for now just click on the finish button)'}
+        {'Will Be available soon (for now just click on the Create Config button)'}
       </Typography>
     </Box>
   );

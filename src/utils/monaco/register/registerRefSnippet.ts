@@ -1,7 +1,7 @@
 import { Monaco } from '@monaco-editor/react';
 
-export const registerRefSnippet = (monaco: Monaco): void => {
-  monaco.languages.registerCompletionItemProvider('json', {
+export const registerRefSnippet = (monaco: Monaco) => {
+  return monaco.languages.registerCompletionItemProvider('json', {
     triggerCharacters: ['"'], // Trigger when user types a double quote
     provideCompletionItems: (model, position) => {
       // Extract the text from the beginning of the line to the cursor position
@@ -28,16 +28,20 @@ export const registerRefSnippet = (monaco: Monaco): void => {
         startColumn: replaceStart,
         endColumn: position.column,
       };
-      const insertText = `"$ref": {"schemaName": "", "version": "latest"}`;
+      const insertText = `"$ref": {"configName": "", "version": "latest"}`;
       return {
         suggestions: [
           {
             label: '"$ref":',
-            kind: monaco.languages.CompletionItemKind.Property,
+            kind: monaco.languages.CompletionItemKind.Snippet,
             insertText: insertText,
             range: range,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.None,
             detail: 'Insert $ref property',
+            documentation: {
+              value: 'Inserts a $ref snippet with configName and version fields',
+              isTrusted: true,
+            },
             sortText: 'aa', // Ensure it sorts above other suggestions
           },
         ],
