@@ -2,7 +2,7 @@ import { getVersionedConfig, GetVersionedConfigData, GetVersionedConfigResponse,
 import { queryClient } from '../tanstack/queryClient';
 
 export async function fetchConfigData(config: GetVersionedConfigData): Promise<GetVersionedConfigResponse | undefined> {
-  const queryHash = createGetVersionedConfigQueryHash(config);
+  const queryHash = getVersionedConfigQueryHash(config);
   const cacheConfig = queryClient.getQueryCache().get<GetVersionedConfigResponse>(queryHash)?.state.data;
   const configResponse =
     cacheConfig ??
@@ -15,8 +15,8 @@ export async function fetchConfigData(config: GetVersionedConfigData): Promise<G
   return configResponse;
 }
 
-export function createGetVersionedConfigQueryHash(config: GetVersionedConfigData): string {
-  return `${getVersionedConfig.name}${config.name}${config.version}`;
+export function getVersionedConfigQueryHash(config: GetVersionedConfigData): string {
+  return `${getVersionedConfig.name}_${config.name}_${config.version}`;
 }
 
 export function calcConfigVersion(stringVersion: string): Version {
