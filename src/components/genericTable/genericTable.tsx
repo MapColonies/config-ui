@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Styles from './genericTable.module.scss';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
 type PrimitiveObject = Record<string, string | number | boolean>;
 

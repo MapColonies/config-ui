@@ -9,7 +9,7 @@ import { useTheme } from '../../hooks/useTheme';
 type MonacoEditorProps = EditorProps & { readonly?: boolean; isFetching?: boolean; schema?: languages.json.JSONSchema };
 
 export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
-  const { schema, readonly = false, isFetching = false, onChange, theme } = editorProps;
+  const { schema, readonly = false, isFetching = false, onChange } = editorProps;
   const [loadProgressBar, setLoadProgressBar] = useState<boolean>(false);
   const [code, setCode] = useState<string>('');
 
