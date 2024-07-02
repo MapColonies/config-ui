@@ -18,7 +18,7 @@ type ConfigPageTabsProps = {
 
 const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ configInfo, processedVersion }) => {
   const { configName: name } = configInfo;
-  const nameAndVersion = `${name}:${processedVersion}`;
+  const nameAndVersion = `${name}:v${processedVersion}`;
   const tabs = [
     {
       label: 'Info',
@@ -73,7 +73,7 @@ export const ConfigPage: React.FC = () => {
     <Box>
       <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'start' }}>
-          <Typography variant="h4"> {`${name}-v${configInfo?.version}`}</Typography>
+          <Typography variant="h4"> {`${name}:v${configInfo?.version}`}</Typography>
         </Toolbar>
         <Divider />
         {configInfo && <ConfigPageTabs configInfo={configInfo} processedVersion={processedVersion} />}
