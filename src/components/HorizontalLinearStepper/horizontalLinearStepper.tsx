@@ -118,12 +118,12 @@ export const HorizontalLinearStepper: React.FC<HorizontalLinearStepperProps> = (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button color="inherit" disabled={isLoading || activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
+            <Button disabled={isLoading || activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
               {back?.buttonName ?? 'Back'}
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
             {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+              <Button onClick={handleSkip} sx={{ mr: 1 }}>
                 {skip?.buttonName ?? 'Skip'}
               </Button>
             )}

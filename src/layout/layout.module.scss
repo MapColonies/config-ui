@@ -5,11 +5,17 @@
   .sideBar {
     width: 200px;
     height: 100vh;
-    background-color: #f0f0f0;
-    border-right: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
     top: 0;
     left: 0;
     z-index: 100;
+  }
+
+  .lightMode {
+    background-color: #f0f0f0;
+    border-right: 1px solid #e0e0e0;
   }
   .page {
     padding: 3;
@@ -18,4 +24,14 @@
     width: 100%;
     overflow: hidden;
   }
+}
+
+.darkModeLink {
+  font: inherit;
+  color: #90caf9;
+}
+
+.lightModeLink {
+  font: inherit;
+  color: #1976d2;
 }

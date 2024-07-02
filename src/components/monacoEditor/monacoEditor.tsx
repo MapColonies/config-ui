@@ -4,6 +4,7 @@ import { editor, languages } from 'monaco-editor';
 import { useEffect, useMemo, useState } from 'react';
 import { registerRefSnippet } from '../../utils/monaco/register/registerRefSnippet';
 import { registerRefHoverProvider } from '../../utils/monaco/register/registerRefHoverProvider';
+import { useTheme } from '../../hooks/useTheme';
 
 type MonacoEditorProps = EditorProps & { readonly?: boolean; isFetching?: boolean; schema?: languages.json.JSONSchema };
 
@@ -13,6 +14,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
   const [code, setCode] = useState<string>('');
 
   const monaco = useMonaco();
+  const { isDarkMode } = useTheme();
 
   const options: editor.IStandaloneEditorConstructionOptions = {
     readOnly: readonly,
@@ -71,7 +73,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
       <Editor
         width={'100%'}
         defaultLanguage={'json'}
-        theme={theme ?? 'vs-dark'}
+        theme={isDarkMode ? 'vs-dark' : 'light'}
         value={code}
         options={options}
         {...editorProps}
