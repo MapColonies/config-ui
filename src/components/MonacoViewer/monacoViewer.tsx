@@ -1,6 +1,8 @@
 import { Box } from '@mui/material';
-import { MonacoEditor } from '../monacoEditor/monacoEditor';
+import { editor } from 'monaco-editor';
 import { jsonFormatter } from '../../utils/jsonFormatter';
+import { Editor } from '@monaco-editor/react';
+import { useTheme } from '../../hooks/useTheme';
 
 type MonacoViewerProps = {
   viewData: unknown;
@@ -8,11 +10,21 @@ type MonacoViewerProps = {
 };
 
 export const MonacoViewer: React.FC<MonacoViewerProps> = ({ viewData, loading }) => {
+  const { isDarkMode } = useTheme();
   const jsonString = jsonFormatter(viewData);
-
+  const options: editor.IStandaloneEditorConstructionOptions = {
+    readOnly: true,
+  };
   return (
     <Box>
-      <MonacoEditor loading={loading} height={'85vh'} defaultValue={jsonString} readonly={true} />
+      <Editor
+        defaultLanguage={'json'}
+        theme={isDarkMode ? 'vs-dark' : 'light'}
+        loading={loading}
+        height={'85vh'}
+        defaultValue={jsonString}
+        options={options}
+      />
     </Box>
   );
 };
