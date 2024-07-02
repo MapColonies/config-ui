@@ -1,4 +1,4 @@
-import { Box, Paper } from '@mui/material';
+import { Box } from '@mui/material';
 import { config as Config, getSchema } from '../../../api/client';
 import Form from '@rjsf/mui';
 import { RJSFSchema } from '@rjsf/utils';
@@ -20,9 +20,9 @@ export const ViewConfigPage: React.FC<ViewConfigPageProps> = ({ configInfo }) =>
   return (
     <Box>
       <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={isSuccess}>
-        <Paper sx={{ overflowY: 'auto', height: '85vh', padding: '10px' }}>
+        <Box sx={{ overflowY: 'auto', height: '100vh', padding: '10px' }}>
           {<Form className={Styles.form} schema={data as RJSFSchema} formData={configInfo.config} validator={validator} readonly={true} />}
-        </Paper>
+        </Box>
       </QueryDataRenderer>
     </Box>
   );

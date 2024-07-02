@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toolbar, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, ListItemIcon } from '@mui/material';
+import { Toolbar, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, ListItemIcon, Card } from '@mui/material';
 import { Settings as ConfigIcon, Description as SchemaIcon } from '@mui/icons-material';
 import { routes } from '../routing/routes';
 import { NavLink as NavLinkBase, NavLinkProps } from 'react-router-dom';
@@ -52,8 +52,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           ))}
         </List>
       </Box>
-      <Box component="main" className={Styles.page} sx={{ p: 3 }}>
-        {children}
+      <Box component="main" className={Styles.page} sx={{ p: 2 }}>
+        <Card sx={{ height: '100%', p: 1 }}>{children}</Card>
       </Box>
     </Box>
   );

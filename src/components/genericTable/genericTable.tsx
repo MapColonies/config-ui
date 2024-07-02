@@ -38,44 +38,42 @@ export const GenericTable = <T extends PrimitiveObject>({ data, columns }: Gener
   });
 
   return (
-    <Paper>
-      <TableContainer sx={{ maxHeight: '80vh' }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column.id as string} align={column.align}>
-                  <TableSortLabel
-                    className={Styles.tableColumn}
-                    active={orderBy === column.id}
-                    direction={orderBy === column.id ? order : 'asc'}
-                    disabled={!(column.sortable ?? false)}
-                    onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
-                  >
-                    {column.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedData.map((row: T, index: number) => (
-              <TableRow key={index}>
-                {columns.map((column: TableColumn<T>) => {
-                  const cellValue = row[column.id as keyof T];
-                  const cellFormat = column.format ? column.format(cellValue) : cellValue;
-                  const cellRender = column.render ? column.render(row) : cellFormat;
-                  return (
-                    <TableCell key={column.id as string} align={column.align}>
-                      {cellRender}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
+    <TableContainer sx={{ maxHeight: '80vh' }}>
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            {columns.map((column) => (
+              <TableCell key={column.id as string} align={column.align}>
+                <TableSortLabel
+                  className={Styles.tableColumn}
+                  active={orderBy === column.id}
+                  direction={orderBy === column.id ? order : 'asc'}
+                  disabled={!(column.sortable ?? false)}
+                  onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
+                >
+                  {column.label}
+                </TableSortLabel>
+              </TableCell>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {sortedData.map((row: T, index: number) => (
+            <TableRow key={index}>
+              {columns.map((column: TableColumn<T>) => {
+                const cellValue = row[column.id as keyof T];
+                const cellFormat = column.format ? column.format(cellValue) : cellValue;
+                const cellRender = column.render ? column.render(row) : cellFormat;
+                return (
+                  <TableCell key={column.id as string} align={column.align}>
+                    {cellRender}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };

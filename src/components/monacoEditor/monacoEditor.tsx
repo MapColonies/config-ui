@@ -78,7 +78,6 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
         onChange={handleCodeChange}
         onMount={editorDidMount}
         beforeMount={handleBeforeMount}
-        keepCurrentModel={true}
       />
     </Box>
   );

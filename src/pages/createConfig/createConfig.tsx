@@ -1,4 +1,4 @@
-import { Box, Toolbar, Typography } from '@mui/material';
+import { Box, Divider, Toolbar, Typography } from '@mui/material';
 import { HorizontalLinearStepper } from '../../components/HorizontalLinearStepper/horizontalLinearStepper';
 import Styles from './createConfig.module.scss';
 import { Step1GeneralInfo } from './step1GeneralInfo/step1GeneralInfo';
@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../routing/routes';
 import { useSnackbar } from 'notistack';
 import { snackBarErrorOptions, snackBarSuccessOptions } from '../../utils/notistack';
+import { PageTitle } from '../../components/pageTitle/pageTitle';
 
 export const CreateConfigsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export const CreateConfigsPage: React.FC = () => {
       component: <Step1GeneralInfo onDataChange={onStep1GeneralInfoDataChange} initialData={step1GeneralInfoData && { ...step1GeneralInfoData }} />,
     },
     {
-      label: 'Config',
+      label: 'Add Config',
       isValid: isStep2Valid,
       component: step1GeneralInfoData && (
         <Step2AddConfig
@@ -106,7 +107,6 @@ export const CreateConfigsPage: React.FC = () => {
       });
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }, [step1GeneralInfoData, step2AddConfigData, createConfig, navigate, enqueueSnackbar]);
@@ -121,19 +121,24 @@ export const CreateConfigsPage: React.FC = () => {
   };
 
   return (
-    <Box className={Styles.createConfigContainer}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Typography variant="h4">Create Config</Typography>
-      </Toolbar>
-      <Box flexGrow={1}>{steps[currentStep].component}</Box>
-      <Box>
-        <HorizontalLinearStepper
-          className={Styles.stepper}
-          steps={steps}
-          onStepChange={onStepChange}
-          buttons={{ finish: { buttonName: 'Create Config', action: handleFinish }, reset: { action: handleReset } }}
-        />
+    <>
+      <PageTitle title={`Step-${currentStep + 1} · Create Config`} />
+
+      <Box className={Styles.createConfigContainer}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'start' }}>
+          <Typography variant="h5">{`Create Config- ${steps[currentStep].label} `}</Typography>
+        </Toolbar>
+        <Divider />
+        <Box flexGrow={1}>{steps[currentStep].component}</Box>
+        <Box>
+          <HorizontalLinearStepper
+            className={Styles.stepper}
+            steps={steps}
+            onStepChange={onStepChange}
+            buttons={{ finish: { buttonName: 'Create Config', action: handleFinish }, reset: { action: handleReset } }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
