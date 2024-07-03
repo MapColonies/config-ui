@@ -77,6 +77,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           variant="outlined"
           error={!!errors.configName}
           helperText={errors.configName?.message}
+          autoComplete="off"
           {...register('configName')}
         />
         {/* // We need to decide how to handle the version field
