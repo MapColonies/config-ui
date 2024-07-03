@@ -1,4 +1,4 @@
-import { Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Paper, Typography, Link as MuiLink } from '@mui/material';
 import { config } from '../../../api/client';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -40,7 +40,14 @@ export const ConfigInfoPage: React.FC<ConfigInfoPageProps> = ({ configInfo }) =>
   const configInfoList: ListData[] = [
     { key: 'Name', value: configInfo.configName },
     { key: 'Version', value: configInfo.version },
-    { key: 'Schema', value: <Link to={`/schema/view?schemaId=${configInfo.schemaId}`}>{configInfo.schemaId}</Link> },
+    {
+      key: 'Schema',
+      value: (
+        <MuiLink component={Link} to={`/schema/view?schemaId=${configInfo.schemaId}`}>
+          {configInfo.schemaId}
+        </MuiLink>
+      ),
+    },
     { key: 'Owner', value: configInfo.createdBy },
     { key: 'Created At', value: new Date(configInfo.createdAt).toLocaleString() },
   ];

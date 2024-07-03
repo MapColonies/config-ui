@@ -1,4 +1,4 @@
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import Styles from './step1GenerateInfo.module.scss';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,10 +69,6 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
 
   return (
     <Box component={'form'}>
-      <Typography align="center" variant="h5">
-        {'General Info Step 1'}
-      </Typography>
-
       <Box className={Styles.generalInfoForm}>
         <SchemaSelect error={errors.schemaId?.message} initialValue={initialData?.schemaId} onChange={handleSchemaSelectDataChange} />
         <TextField
@@ -81,6 +77,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           variant="outlined"
           error={!!errors.configName}
           helperText={errors.configName?.message}
+          autoComplete="off"
           {...register('configName')}
         />
         {/* // We need to decide how to handle the version field
@@ -104,6 +101,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           variant="outlined"
           multiline
           minRows={5}
+          maxRows={10}
           error={!!errors.description}
           helperText={errors.description?.message}
           {...register('description')}

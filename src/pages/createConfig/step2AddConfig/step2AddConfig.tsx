@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from '@mui/material';
+import { Box, Card } from '@mui/material';
 import ajv from 'ajv';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, getSchema } from '../../../api/client';
@@ -80,25 +80,20 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
   };
 
   return (
-    <Box key={schemaId}>
-      <Typography align="center" variant="h5">
-        {'Add Config Step 2'}
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-        <MonacoEditor
-          defaultValue={initialJsonStringData ?? '{}'}
-          schema={schema}
-          onChange={handleEditorChange}
-          height={'70vh'}
-          isFetching={isFetching}
-        />
+    <Box sx={{ display: 'flex', pt: '1%', flexDirection: { xs: 'column', md: 'row' }, gap: 1 }}>
+      <MonacoEditor
+        defaultValue={initialJsonStringData ?? '{}'}
+        schema={schema}
+        onChange={handleEditorChange}
+        height={'70vh'}
+        isFetching={isFetching}
+      />
 
-        <Card sx={{ width: { xs: '100%', md: '300px' } }}>
-          {errors.map((error, index) => (
-            <ErrorCard key={index} title={error.title} errorMessage={error.errorMessage} />
-          ))}
-        </Card>
-      </Box>
+      <Card sx={{ width: { xs: '100%', md: '300px' } }}>
+        {errors.map((error, index) => (
+          <ErrorCard key={index} title={error.title} errorMessage={error.errorMessage} />
+        ))}
+      </Card>
     </Box>
   );
 };

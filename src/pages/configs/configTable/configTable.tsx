@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { GenericTable, TableColumn } from '../../../components/genericTable/genericTable';
 import { ClipboardCopyButton } from '../../../components/clipboardCopyButton/clipboardCopyButton';
 import { ActionMenu } from '../../../components/actionMenu/actionMenu';
-import { Box, MenuItem, Tooltip, Typography } from '@mui/material';
+import { Box, Link as MuiLink, MenuItem, Tooltip, Typography } from '@mui/material';
 import { routes } from '../../../routing/routes';
 import Styles from './configTable.module.scss';
 import { config } from '../../../api/client';
@@ -25,13 +25,13 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       render: (row: TableConfigData) => (
         <>
           <Box className={Styles.configNameColumn}>
-            <Link to={`/config/${row.configName}/${row.version}`}>
+            <MuiLink underline="none" component={Link} to={`/config/${row.configName}/${row.version}`}>
               <Tooltip title={row.configName} placement="top-start">
                 <Typography className={Styles.truncate} noWrap>
                   {row.configName}
                 </Typography>
               </Tooltip>
-            </Link>
+            </MuiLink>
             <ClipboardCopyButton text={row.configName} />
           </Box>
         </>
@@ -43,11 +43,11 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       sortable: true,
       render: (row: TableConfigData) => (
         <Box className={Styles.configSchemaColumn}>
-          <Link to={`/schema/view?schemaId=${row.schemaId}`}>
+          <MuiLink underline="none" component={Link} to={`/schema/view?schemaId=${row.schemaId}`}>
             <Tooltip title={row.schemaId} placement="top-start">
               <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
             </Tooltip>
-          </Link>
+          </MuiLink>
           <ClipboardCopyButton text={row.schemaId} />
         </Box>
       ),
