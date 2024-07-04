@@ -1,5 +1,5 @@
 import { Monaco } from '@monaco-editor/react';
-import { extractRefConfig } from '../refHandler';
+import { extractRefConfig } from '../configRefHandler';
 import { routes } from '../../../routing/routes';
 import { fetchConfigData } from '../../../api/services/configDataFetcher';
 

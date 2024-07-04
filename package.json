@@ -13,6 +13,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^11.6.4",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@hookform/resolvers": "^3.5.0",
@@ -25,6 +26,8 @@
     "@rjsf/validator-ajv8": "^5.18.4",
     "@tanstack/react-query": "^5.40.0",
     "ajv": "^8.16.0",
+    "ajv-formats": "^3.0.1",
+    "buffer": "^6.0.3",
     "classnames": "^2.5.1",
     "json-schema-faker": "^0.5.6",
     "notistack": "^3.0.1",
