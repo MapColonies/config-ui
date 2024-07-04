@@ -36,6 +36,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
           fileMatch: ['*'],
         },
       ],
+      schemaValidation: 'error',
     };
     return options;
   }, [schema]);

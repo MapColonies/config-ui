@@ -77,24 +77,19 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
     setErrors(newErrors);
   };
   return (
-    <Box key={schemaId}>
-      <Typography align="center" variant="h5">
-        {'Add Config Step 2'}
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-        <MonacoEditor
-          defaultValue={initialJsonStringData ?? '{}'}
-          schema={dereferencedSchema}
-          onChange={handleEditorChange}
-          height={'70vh'}
-          isFetching={isFetching}
-        />
-        <Card sx={{ width: { xs: '100%', md: '300px' } }}>
-          {errors.map((error, index) => (
-            <ErrorCard key={index} title={error.title} errorMessage={error.errorMessage} />
-          ))}
-        </Card>
-      </Box>
+    <Box sx={{ display: 'flex', pt: '1%', flexDirection: { xs: 'column', md: 'row' }, gap: 1 }}>
+      <MonacoEditor
+        defaultValue={initialJsonStringData ?? '{}'}
+        schema={dereferencedSchema}
+        onChange={handleEditorChange}
+        height={'70vh'}
+        isFetching={isFetching}
+      />
+      <Card sx={{ width: { xs: '100%', md: '300px' } }}>
+        {errors.map((error, index) => (
+          <ErrorCard key={index} title={error.title} errorMessage={error.errorMessage} />
+        ))}
+      </Card>
     </Box>
   );
 };
