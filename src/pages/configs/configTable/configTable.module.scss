@@ -2,19 +2,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
+  max-width: 150px;
 }
 
-.configNameColumn {
+.columnWithCopyButton {
   display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  width: 15vh;
-}
-
-.configSchemaColumn {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  width: 25vh;
+  gap: 1rem;
 }

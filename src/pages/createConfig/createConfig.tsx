@@ -126,7 +126,7 @@ export const CreateConfigsPage: React.FC = () => {
 
       <Box className={Styles.createConfigContainer}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'start' }}>
-          <Typography variant="h5">{`Create Config- ${steps[currentStep].label} `}</Typography>
+          <Typography variant="h5">{`Create Config - ${steps[currentStep].label} `}</Typography>
         </Toolbar>
         <Divider />
         <Box flexGrow={1}>{steps[currentStep].component}</Box>
