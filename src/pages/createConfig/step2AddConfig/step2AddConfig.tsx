@@ -1,14 +1,13 @@
-import { Box, Card, Typography } from '@mui/material';
+import { Box, Card } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, getSchema } from '../../../api/client';
 import { MonacoEditor } from '../../../components/monacoEditor/monacoEditor';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ConfigData } from '../createConfig.types';
 import { dereferenceConfig, isConfigRef } from '../../../utils/monaco/configRefHandler';
 import { ErrorCard, ErrorCardProps } from '../../../components/errorCard/errorCard';
 import { ErrorType } from '../../../components/errorCard/error.types';
 import { validateJson } from '../../../utils/ajv';
-import { SchemaObject } from 'ajv';
 import { dereferenceJsonSchema } from '../../../utils/schemaRefParser';
 
 type Step2AddConfigProps = {
@@ -18,23 +17,21 @@ type Step2AddConfigProps = {
   initialJsonStringData?: string | undefined;
 };
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
+  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
   const { data: schema } = useQuery({
     queryKey: [getSchema.name, schemaId],
-    queryFn: fetchSchemaDereference,
+    queryFn: fetchSchema,
     enabled: !!schemaId,
   });
 
-  const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [dereferencedSchema, setDereferencedSchema] = useState<SchemaObject>({});
-  const [errors, setErrors] = useState<ErrorCardProps[]>([]);
+  const { data: dereferencedSchema } = useQuery({
+    queryKey: [dereferenceJsonSchema.name, schemaId],
+    enabled: !!schema,
+    queryFn: async () => dereferenceJsonSchema(schema),
+  });
 
-  useEffect(() => {
-    if (!schema) {
-      return;
-    }
-    dereferenceJsonSchema(schema).then(setDereferencedSchema);
-  }, [schema]);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [errors, setErrors] = useState<ErrorCardProps[]>([]);
 
   const handleEditorChange = async (value: string | undefined) => {
     const newErrors: ErrorCardProps[] = [];

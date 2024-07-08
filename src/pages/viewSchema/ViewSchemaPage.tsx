@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { Box, Divider, Toolbar, Typography, Switch, FormControlLabel } from '@mui/material';
@@ -15,73 +15,50 @@ export const ViewSchemaPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const schemaId = searchParams.get('schemaId');
   const [isDereferenced, setIsDereferenced] = useState<boolean>(false);
-  const [currentSchema, setCurrentSchema] = useState<SchemaObject | null>(null);
-
-  const {
-    data: originalSchema,
-    isLoading: isOriginalLoading,
-    error: originalError,
-    refetch: refetchOriginal,
-  } = useQuery({
-    queryKey: ['originalSchema', schemaId],
-    queryFn: () => getSchema({ id: schemaId ?? '', shouldDereference: false }),
-  });
-
-  const {
-    data: dereferencedSchema,
-    isLoading: isDereferencedLoading,
-    error: dereferencedError,
-    refetch: refetchDereferenced,
-  } = useQuery({
-    queryKey: ['dereferencedSchema', schemaId],
-    queryFn: async () => dereferenceJsonSchema(originalSchema as SchemaObject),
-    enabled: !!originalSchema && isDereferenced,
-  });
-
-  useEffect(() => {
-    setCurrentSchema(isDereferenced ? (dereferencedSchema as SchemaObject) : (originalSchema as SchemaObject));
-  }, [isDereferenced, dereferencedSchema, originalSchema]);
-
   const schemaName = useMemo(() => removeBaseUrlFromSchemaId(schemaId ?? ''), [schemaId]);
 
-  const isCurrentSchemaLoading = isDereferenced ? isDereferencedLoading : isOriginalLoading;
-  const currentError = isDereferenced ? dereferencedError : originalError;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['getSchema', schemaId, isDereferenced],
+    queryFn: async () => {
+      const original = await getSchema({ id: schemaId ?? '', shouldDereference: false });
+      const disableToggle = !isSchemaRef(jsonFormatter(original));
+      if (isDereferenced) {
+        const dereferenced = await dereferenceJsonSchema(original as SchemaObject);
+        return { originalSchema: original, dereferencedSchema: dereferenced, disableToggle };
+      }
 
-  const showToggle = useMemo(() => {
-    return isSchemaRef(jsonFormatter(originalSchema ?? {}));
-  }, [originalSchema]);
+      return { originalSchema: original, dereferencedSchema: null, disableToggle };
+    },
+  });
 
   const dereferenceToggle = useMemo(() => {
     const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setIsDereferenced(event.target.checked);
-      if (event.target.checked) {
-        refetchDereferenced();
-      } else {
-        refetchOriginal();
-      }
     };
+
+    const disabled = isLoading || data?.disableToggle;
 
     return (
       <Toolbar>
         <FormControlLabel
-          control={<Switch checked={isDereferenced} onChange={handleToggleChange} disabled={isCurrentSchemaLoading || !showToggle} />}
+          control={<Switch checked={isDereferenced} onChange={handleToggleChange} disabled={disabled} />}
           label={isDereferenced ? 'View Original Schema' : 'View Dereferenced Schema'}
         />
       </Toolbar>
     );
-  }, [showToggle, isDereferenced, isCurrentSchemaLoading, refetchDereferenced, refetchOriginal]);
+  }, [isDereferenced, isLoading, data?.disableToggle]);
 
   return (
     <Box>
       <PageTitle title={`${schemaName} · View Schema`} />
-      <QueryDataRenderer isLoading={isCurrentSchemaLoading} error={currentError} isSuccess={!!currentSchema}>
+      <QueryDataRenderer isLoading={isLoading} error={error} isSuccess={!!data?.originalSchema}>
         <Box>
           <Toolbar sx={{ display: 'flex', justifyContent: 'start' }}>
             <Typography variant="h4">{schemaName}</Typography>
           </Toolbar>
           {dereferenceToggle}
           <Divider />
-          <Box sx={{ pt: '2%' }}>{currentSchema && <MonacoViewer viewData={currentSchema} />}</Box>
+          <Box sx={{ pt: '2%' }}>{<MonacoViewer viewData={isDereferenced ? data?.dereferencedSchema : data?.originalSchema} />}</Box>
         </Box>
       </QueryDataRenderer>
     </Box>
