@@ -17,6 +17,7 @@ type Step2AddConfigProps = {
   onJsonStringChange: (json: string | undefined) => void;
   initialJsonStringData?: string | undefined;
 };
+
 export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData = '{}' }) => {
   const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
   const { data: schema, isSuccess } = useQuery({
@@ -34,6 +35,7 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [errors, setErrors] = useState<DetailCardProps[]>([]);
 
+  //triggering initial validation on component mount
   useEffect(() => {
     handleEditorChange(initialJsonStringData);
   }, [isSuccess]);
@@ -73,11 +75,8 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
     } catch (error) {
       let errMessage = 'Error parsing JSON';
       if (error instanceof SyntaxError) {
-        console.log('error', error);
         errMessage = error.message;
       }
-      console.log('value', value);
-
       newErrors.push({ variant: 'error', title: ErrorType.JSON_PARSE_ERROR, message: errMessage });
 
       onDataChange(undefined, false);
