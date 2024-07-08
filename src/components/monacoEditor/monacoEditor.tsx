@@ -5,8 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { registerRefSnippet } from '../../utils/monaco/register/registerRefSnippet';
 import { registerRefHoverProvider } from '../../utils/monaco/register/registerRefHoverProvider';
 import { useTheme } from '../../hooks/useTheme';
+import { SchemaObject } from 'ajv';
 
-type MonacoEditorProps = EditorProps & { readonly?: boolean; isFetching?: boolean; schema?: languages.json.JSONSchema };
+type MonacoEditorProps = EditorProps & { readonly?: boolean; isFetching?: boolean; schema?: SchemaObject };
 
 export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
   const { schema, readonly = false, isFetching = false, onChange } = editorProps;
@@ -35,6 +36,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = (editorProps) => {
           fileMatch: ['*'],
         },
       ],
+      schemaValidation: 'error',
     };
     return options;
   }, [schema]);

@@ -22,7 +22,7 @@ export const MonacoViewer: React.FC<MonacoViewerProps> = ({ viewData, loading })
         theme={isDarkMode ? 'vs-dark' : 'light'}
         loading={loading}
         height={'85vh'}
-        defaultValue={jsonString}
+        value={jsonString}
         options={options}
       />
     </Box>

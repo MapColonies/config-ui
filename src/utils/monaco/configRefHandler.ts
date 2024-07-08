@@ -17,7 +17,7 @@ type JsonArray = JsonValue[];
 const refConfigRegex =
   /"\$ref"\s*:\s*\{\s*(?:"configName"\s*:\s*"(?<configName>[^"]*)"\s*,\s*"version"\s*:\s*"(?<version>[^"]*)"|"version"\s*:\s*"(?<version2>[^"]*)"\s*,\s*"configName"\s*:\s*"(?<configName2>[^"]*)")\s*\}/s;
 
-export const isRef = (text: string): boolean => {
+export const isConfigRef = (text: string): boolean => {
   return refConfigRegex.test(text);
 };
 
