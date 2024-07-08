@@ -10,6 +10,7 @@ export const ajvInstance = new ajv({
     const schema = await getSchema({ id: uri, shouldDereference: false });
     return schema;
   },
+  allErrors: true,
 });
 
 addFormats(ajvInstance);
@@ -17,16 +18,16 @@ addFormats(ajvInstance);
 export const validateJson = async (schema: SchemaObject | undefined, data: object) => {
   try {
     if (!schema) {
-      return { isValid: false, message: ErrorMessages.SchemaMissing };
+      return { isValid: false, errors: [{ message: ErrorMessages.SchemaMissing }] };
     }
     const validate = await ajvInstance.compileAsync(schema);
     const isValid = validate(data);
-    return { isValid, message: validate.errors?.[0].message };
+    return { isValid, errors: validate.errors };
   } catch (err) {
     let errorMessage = ErrorMessages.Unknown;
     if (err instanceof Error) {
       errorMessage = err.message;
     }
-    return { isValid: false, message: errorMessage };
+    return { isValid: false, errors: [{ message: errorMessage }] };
   }
 };

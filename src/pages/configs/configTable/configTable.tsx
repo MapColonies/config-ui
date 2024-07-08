@@ -17,38 +17,41 @@ type ConfigTableProps = {
 export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
   const navigate = useNavigate();
   const columns: TableColumn<TableConfigData>[] = [
-    { id: 'version', label: 'Version', sortable: true },
     {
       id: 'configName',
       label: 'Name',
       sortable: true,
-      render: (row: TableConfigData) => (
-        <>
-          <Box className={Styles.configNameColumn}>
-            <MuiLink underline="none" component={Link} to={`/config/${row.configName}/${row.version}`}>
-              <Tooltip title={row.configName} placement="top-start">
-                <Typography className={Styles.truncate} noWrap>
-                  {row.configName}
-                </Typography>
-              </Tooltip>
-            </MuiLink>
-            <ClipboardCopyButton text={row.configName} />
-          </Box>
-        </>
-      ),
+      render: (row: TableConfigData) => {
+        const configNameWithVersion = `${row.configName}:v${row.version}`;
+        return (
+          <>
+            <Box className={Styles.columnWithCopyButton}>
+              <ClipboardCopyButton text={row.configName} />
+
+              <MuiLink underline="none" component={Link} to={`/config/${row.configName}/${row.version}`}>
+                <Tooltip title={configNameWithVersion} placement="top-start">
+                  <Typography className={Styles.truncate} noWrap>
+                    {configNameWithVersion}
+                  </Typography>
+                </Tooltip>
+              </MuiLink>
+            </Box>
+          </>
+        );
+      },
     },
     {
       id: 'schemaId',
       label: 'Schema',
       sortable: true,
       render: (row: TableConfigData) => (
-        <Box className={Styles.configSchemaColumn}>
+        <Box className={Styles.columnWithCopyButton}>
+          <ClipboardCopyButton text={row.schemaId} />
           <MuiLink underline="none" component={Link} to={`/schema/view?schemaId=${row.schemaId}`}>
             <Tooltip title={row.schemaId} placement="top-start">
               <Typography>{removeBaseUrlFromSchemaId(row.schemaId)}</Typography>
             </Tooltip>
           </MuiLink>
-          <ClipboardCopyButton text={row.schemaId} />
         </Box>
       ),
     },
