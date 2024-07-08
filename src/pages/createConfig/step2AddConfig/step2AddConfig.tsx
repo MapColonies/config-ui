@@ -7,7 +7,6 @@ import { ConfigData } from '../createConfig.types';
 import { dereferenceConfig, isConfigRef } from '../../../utils/monaco/configRefHandler';
 import { ErrorType } from '../../../components/detailCard/detailCard.types';
 import { validateJson } from '../../../utils/ajv';
-import { SchemaObject } from 'ajv';
 import { dereferenceJsonSchema } from '../../../utils/schemaRefParser';
 import DetailCard, { DetailCardProps } from '../../../components/detailCard/detailCard';
 import { Link } from 'react-router-dom';
@@ -18,28 +17,26 @@ type Step2AddConfigProps = {
   onJsonStringChange: (json: string | undefined) => void;
   initialJsonStringData?: string | undefined;
 };
-export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData }) => {
-  const fetchSchemaDereference = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
-  const { data: schema } = useQuery({
+export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData = '{}' }) => {
+  const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
+  const { data: schema, isSuccess } = useQuery({
     queryKey: [getSchema.name, schemaId],
-    queryFn: fetchSchemaDereference,
+    queryFn: fetchSchema,
     enabled: !!schemaId,
   });
 
+  const { data: dereferencedSchema } = useQuery({
+    queryKey: [dereferenceJsonSchema.name, schemaId],
+    enabled: !!schema,
+    queryFn: async () => dereferenceJsonSchema(schema),
+  });
+
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [dereferencedSchema, setDereferencedSchema] = useState<SchemaObject>({});
   const [errors, setErrors] = useState<DetailCardProps[]>([]);
 
   useEffect(() => {
-    if (!schema) {
-      return;
-    }
-    dereferenceJsonSchema(schema).then(setDereferencedSchema);
-  }, [schema]);
-
-  useEffect(() => {
     handleEditorChange(initialJsonStringData);
-  }, []);
+  }, [isSuccess]);
 
   const handleEditorChange = async (value: string | undefined) => {
     const newErrors: DetailCardProps[] = [];
@@ -76,18 +73,23 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
     } catch (error) {
       let errMessage = 'Error parsing JSON';
       if (error instanceof SyntaxError) {
+        console.log('error', error);
         errMessage = error.message;
       }
+      console.log('value', value);
+
       newErrors.push({ variant: 'error', title: ErrorType.JSON_PARSE_ERROR, message: errMessage });
+
       onDataChange(undefined, false);
     }
     setErrors(newErrors);
   };
+
   return (
     <>
       <Box sx={{ display: 'flex', pt: '1%', flexDirection: { xs: 'column', md: 'row' }, gap: 1 }}>
         <MonacoEditor
-          defaultValue={initialJsonStringData ?? '{}'}
+          defaultValue={initialJsonStringData}
           schema={dereferencedSchema}
           onChange={handleEditorChange}
           height={'70vh'}
