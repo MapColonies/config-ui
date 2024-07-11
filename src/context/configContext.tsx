@@ -19,7 +19,6 @@ const initialState: ConfigFormState = {
       previousVersion: 1,
       nextVersion: 1,
       rollBackVersion: 1,
-      latestConfigData: {},
     },
   },
   validation: {
@@ -27,6 +26,7 @@ const initialState: ConfigFormState = {
     step2: false,
     step3: false,
   },
+  latestConfig: undefined,
   isSubmitting: false,
   isSubmittingError: false,
   isSubmittingSuccess: false,
@@ -63,6 +63,11 @@ const configReducer = (state: ConfigFormState, action: ConfigFormAction): Config
         ...state,
         formData: action.payload,
         currentStep: action.startStep,
+      };
+    case 'SET_LATEST_CONFIG':
+      return {
+        ...state,
+        latestConfig: action.payload,
       };
     default:
       return state;

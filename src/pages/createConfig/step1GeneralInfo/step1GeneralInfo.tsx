@@ -12,9 +12,9 @@ import { queryClient } from '../../../api/tanstack/queryClient';
 export const Step1GeneralInfo: React.FC = () => {
   const { state, dispatch } = useConfigForm();
   const isFetching = useIsFetching(undefined, queryClient);
-  const { formData } = state;
+  const { formData, latestConfig } = state;
 
-  const { register, formState, watch, setValue, trigger } = useForm<GeneralInfoForm>({
+  const { register, formState, watch, setValue, trigger, setError, clearErrors } = useForm<GeneralInfoForm>({
     mode: 'all',
     resolver: zodResolver(generalInfoFormSchema),
     defaultValues: formData.step1,
@@ -36,6 +36,17 @@ export const Step1GeneralInfo: React.FC = () => {
     dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: isValid });
   }, [isValid, configName, schemaId, description, dispatch]);
 
+  useEffect(() => {
+    if (latestConfig) {
+      if (latestConfig.schemaId !== schemaId) {
+        setError('root', { message: 'mis-match schema to config', type: 'onChange' }, { shouldFocus: true });
+        dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: false });
+        return;
+      }
+    }
+    clearErrors('root');
+  }, [schemaId, latestConfig, setError, clearErrors, configName, dispatch]);
+
   const handleSchemaSelectDataChange = (value: string) => {
     setValue('schemaId', value);
     trigger('schemaId');
@@ -44,7 +55,7 @@ export const Step1GeneralInfo: React.FC = () => {
   return (
     <Box component={'form'}>
       <Box className={Styles.generalInfoForm}>
-        <SchemaSelect error={errors.schemaId?.message} initialValue={formData.step1.schemaId} onChange={handleSchemaSelectDataChange} />
+        <SchemaSelect error={errors.root?.message} initialValue={formData.step1.schemaId} onChange={handleSchemaSelectDataChange} />
         <TextField
           id="configName"
           label="Config Name"

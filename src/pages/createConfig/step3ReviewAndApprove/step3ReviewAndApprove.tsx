@@ -13,11 +13,12 @@ type ModeDetails = {
 
 export const Step3ReviewAndApprove: React.FC = () => {
   const { state } = useConfigForm();
-  const { nextVersion, mode, rollBackVersion, previousVersion, latestConfigData } = state.formData.step3;
+  const { nextVersion, mode, rollBackVersion, previousVersion } = state.formData.step3;
   const { configName } = state.formData.step1;
   const { configJsonStringData: modifiedConfig, configData } = state.formData.step2;
+  const { latestConfig } = state;
 
-  const originalConfig = useMemo(() => JSON.stringify(latestConfigData, null, 2), [latestConfigData]);
+  const originalConfig = useMemo(() => JSON.stringify(latestConfig?.config, null, 2), [latestConfig?.config]);
 
   const getModeDetails = (): ModeDetails => {
     switch (mode) {
@@ -70,7 +71,7 @@ export const Step3ReviewAndApprove: React.FC = () => {
           <Typography variant="h6" component="div" gutterBottom>
             {header}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body1" color="text.secondary">
             {message}
           </Typography>
         </CardContent>
