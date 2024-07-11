@@ -20,11 +20,12 @@ type HorizontalLinearStepperProps = {
   steps: StepSequence;
   className?: string;
   buttons?: StepperButtons;
+  startStep: number;
   onStepChange?: (step: number) => void;
 };
 
-export const HorizontalLinearStepper: React.FC<HorizontalLinearStepperProps> = ({ steps, buttons, onStepChange, className }) => {
-  const [activeStep, setActiveStep] = React.useState(0);
+export const HorizontalLinearStepper: React.FC<HorizontalLinearStepperProps> = ({ steps, buttons, onStepChange, className, startStep }) => {
+  const [activeStep, setActiveStep] = React.useState(startStep);
   const [isLoading, setIsLoading] = React.useState(false);
   const [skipped, setSkipped] = React.useState(new Set<number>());
   const { back, skip, next, finish, reset } = buttons ?? {};

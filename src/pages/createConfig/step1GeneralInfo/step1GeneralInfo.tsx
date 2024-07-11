@@ -1,66 +1,40 @@
-import { Box, TextField } from '@mui/material';
+import { Box, CircularProgress, TextField } from '@mui/material';
 import Styles from './step1GenerateInfo.module.scss';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { GeneralInfoForm, generalInfoFormSchema } from './step1GeneralInfo.schemas';
 import { SchemaSelect } from '../../../components/schemaSelect/schemaSelect';
-import { getConfigsByName } from '../../../api/client';
-import { useMutation } from '@tanstack/react-query';
+import { useConfigForm } from '../../../hooks/useConfigForm';
+import { useIsFetching } from '@tanstack/react-query';
+import { queryClient } from '../../../api/tanstack/queryClient';
 
-const DefaultVersion = '1';
-
-type Step1GeneralInfoProps = {
-  onDataChange: (data: GeneralInfoForm | undefined, isValid: boolean) => void;
-  initialData?: GeneralInfoForm | undefined;
-};
-
-export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange, initialData }) => {
-  const { mutateAsync: getConfigByName } = useMutation({
-    mutationFn: getConfigsByName,
-  });
+export const Step1GeneralInfo: React.FC = () => {
+  const { state, dispatch } = useConfigForm();
+  const isFetching = useIsFetching(undefined, queryClient);
+  const { formData } = state;
 
   const { register, formState, watch, setValue, trigger } = useForm<GeneralInfoForm>({
     mode: 'all',
     resolver: zodResolver(generalInfoFormSchema),
-    defaultValues: { ...initialData, version: initialData?.version ?? DefaultVersion },
+    defaultValues: formData.step1,
   });
 
   const { errors, isValid } = formState;
 
   const configName = watch('configName');
-  const version = watch('version');
   const schemaId = watch('schemaId');
   const description = watch('description');
 
   useEffect(() => {
     const values = {
       configName,
-      version,
       schemaId,
       description,
     };
-    onDataChange(values, isValid);
-  }, [isValid, configName, version, schemaId, description, onDataChange]);
-
-  useEffect(() => {
-    if (!configName) {
-      return;
-    }
-
-    let version: string = DefaultVersion;
-
-    getConfigByName({ name: configName })
-      .then((config) => {
-        version = String(config.version);
-      })
-      .catch((error) => {
-        console.error('Failed to fetch config', error);
-      })
-      .finally(() => {
-        setValue('version', version, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-      });
-  }, [configName, getConfigByName, setValue]);
+    dispatch({ type: 'SET_FORM_DATA', step: 'step1', payload: values });
+    dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: isValid });
+  }, [isValid, configName, schemaId, description, dispatch]);
 
   const handleSchemaSelectDataChange = (value: string) => {
     setValue('schemaId', value);
@@ -70,7 +44,7 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
   return (
     <Box component={'form'}>
       <Box className={Styles.generalInfoForm}>
-        <SchemaSelect error={errors.schemaId?.message} initialValue={initialData?.schemaId} onChange={handleSchemaSelectDataChange} />
+        <SchemaSelect error={errors.schemaId?.message} initialValue={formData.step1.schemaId} onChange={handleSchemaSelectDataChange} />
         <TextField
           id="configName"
           label="Config Name"
@@ -78,23 +52,9 @@ export const Step1GeneralInfo: React.FC<Step1GeneralInfoProps> = ({ onDataChange
           error={!!errors.configName}
           helperText={errors.configName?.message}
           autoComplete="off"
+          InputProps={{ endAdornment: isFetching ? <CircularProgress size={20} /> : null }}
           {...register('configName')}
         />
-        {/* // We need to decide how to handle the version field
-        <TextField
-          hidden={true}
-          hiddenLabel={true}
-          id="version"
-          label="Version"
-          variant="outlined"
-          inputProps={{ type: 'number', min: 1, inputMode: 'numeric' }}
-          inputMode="numeric"
-          type="number"
-          // InputProps={{ readOnly: true }}
-          error={!!errors.version}
-          helperText={errors.version?.message}
-          {...register('version')}
-        /> */}
         <TextField
           id="description"
           label="Description"
