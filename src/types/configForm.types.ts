@@ -23,6 +23,7 @@ export type ConfigFormData = {
     previousVersion: version;
     nextVersion: version;
     rollBackVersion: version;
+    latestConfigData: ConfigData;
   };
 };
 

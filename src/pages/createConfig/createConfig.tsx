@@ -57,6 +57,7 @@ export const CreateConfigPage: React.FC = () => {
           nextVersion: (data.version as number) + 1,
           previousVersion: data.version,
           rollBackVersion: data.version,
+          latestConfigData: {},
         },
       };
 
@@ -79,7 +80,11 @@ export const CreateConfigPage: React.FC = () => {
       .then((config) => {
         version = config.version;
         const nextVersion = (version as number) + 1;
-        dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: mode ?? 'NEW_VERSION', nextVersion, previousVersion: version } });
+        dispatch({
+          type: 'SET_FORM_DATA',
+          step: 'step3',
+          payload: { mode: mode ?? 'NEW_VERSION', nextVersion, previousVersion: version, latestConfigData: config.config },
+        });
       })
       .catch((error) => {
         if (error instanceof ApiError && error.status === 404) {

@@ -58,7 +58,7 @@ export const ViewSchemaPage: React.FC = () => {
           </Toolbar>
           {dereferenceToggle}
           <Divider />
-          <Box sx={{ pt: '2%' }}>{<MonacoViewer viewData={isDereferenced ? data?.dereferencedSchema : data?.originalSchema} />}</Box>
+          <Box sx={{ pt: '2%' }}>{<MonacoViewer viewData={isDereferenced ? data?.dereferencedSchema : data?.originalSchema} height={'85vh'} />}</Box>
         </Box>
       </QueryDataRenderer>
     </Box>
