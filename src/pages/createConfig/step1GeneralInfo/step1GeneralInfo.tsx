@@ -39,7 +39,11 @@ export const Step1GeneralInfo: React.FC = () => {
   useEffect(() => {
     if (latestConfig) {
       if (latestConfig.schemaId !== schemaId) {
-        setError('root', { message: 'mis-match schema to config', type: 'onChange' }, { shouldFocus: true });
+        setError(
+          'root',
+          { message: `mis-match schema to config name (the matching schema is: "${latestConfig.schemaId}")`, type: 'onChange' },
+          { shouldFocus: true }
+        );
         dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: false });
         return;
       }
