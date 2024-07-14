@@ -39,7 +39,7 @@ export const Step3ReviewAndApprove: React.FC = () => {
         return {
           header: `You are rolling back the configuration "${configName}"`,
           message: `The configuration will be rolled back to v${rollBackVersion}, the new version will be v${nextVersion}`,
-          originalTitle: `Original: v${rollBackVersion}`,
+          originalTitle: `Original: v${previousVersion}`,
           modifiedTitle: `Modified: v${nextVersion}`,
         };
     }
