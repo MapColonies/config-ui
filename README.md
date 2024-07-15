@@ -35,6 +35,10 @@ Currently, two official plugins are available:
 
 ## Installation
 
+**Prerequisites**
+
+Before you begin, make sure you have a local instance of [Config Server](https://github.com/MapColonies/config-server) running, which this application relies on for backend services.
+
 To install and set up the project locally, follow these steps:
 
 1. **Clone the repository**:
@@ -49,11 +53,35 @@ To install and set up the project locally, follow these steps:
    ```sh
    npm install
    ```
-4. **Run the application**:
+
+4. **Configure Proxy in Vite**
+
+   After setting up the Config Server, update the `vite.config.ts` to include a proxy configuration that routes requests to your local Config Server instance. Add the following configuration to your `vite.config.ts`:
+
+   ```typescript
+   import { defineConfig } from 'vite';
+   import react from '@vitejs/plugin-react-swc';
+
+   // https://vitejs.dev/config/
+   export default defineConfig({
+     plugins: [react()],
+     server: {
+       proxy: {
+         '/api': {
+           target: '${configServerUrl}',
+           changeOrigin: true,
+           rewrite: (path) => path.replace(/^\/api/, '')
+         },
+       },
+     },
+   });
+   ```
+
+5. **Run the application**:
    ```sh
    npm run dev
    ```
-5. Open your browser and navigate to `http://localhost:5173` to see the application running.
+6. Open your browser and navigate to `http://localhost:5173` to see the application running.
 
 ## Usage
 
