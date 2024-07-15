@@ -5,7 +5,7 @@ import { Step1GeneralInfo } from './step1GeneralInfo/step1GeneralInfo';
 import { Step2AddConfig } from './step2AddConfig/step2AddConfig';
 import { Step3ReviewAndApprove } from './step3ReviewAndApprove/step3ReviewAndApprove';
 import { useCallback, useEffect, useMemo } from 'react';
-import { ConfigModeState, getStepByMode } from './createConfig.types';
+import { ConfigModeState } from './createConfig.types';
 import { StepSequence } from '../../components/HorizontalLinearStepper/step.types';
 import { ApiError, UpsertConfigData, getConfigsByName, getVersionedConfig, upsertConfig, version } from '../../api/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -17,6 +17,7 @@ import { PageTitle } from '../../components/pageTitle/pageTitle';
 import { useConfigForm } from '../../hooks/useConfigForm';
 import { jsonFormatter } from '../../utils/jsonFormatter';
 import { ConfigFormData } from '../../types/configForm.types';
+import { getStepByMode } from './createConfig.utils';
 
 export const CreateConfigPage: React.FC = () => {
   const navigate = useNavigate();
@@ -89,7 +90,6 @@ export const CreateConfigPage: React.FC = () => {
       .catch((error) => {
         if (error instanceof ApiError && error.status === 404) {
           dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
-          dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
         }
       });
   }, [getConfigByName, dispatch, configFormState.formData.step1.configName, mode]);

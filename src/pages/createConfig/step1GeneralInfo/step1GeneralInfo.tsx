@@ -1,4 +1,4 @@
-import { Box, CircularProgress, TextField } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import Styles from './step1GenerateInfo.module.scss';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,12 +6,9 @@ import { useEffect } from 'react';
 import { GeneralInfoForm, generalInfoFormSchema } from './step1GeneralInfo.schemas';
 import { SchemaSelect } from '../../../components/schemaSelect/schemaSelect';
 import { useConfigForm } from '../../../hooks/useConfigForm';
-import { useIsFetching } from '@tanstack/react-query';
-import { queryClient } from '../../../api/tanstack/queryClient';
 
 export const Step1GeneralInfo: React.FC = () => {
   const { state, dispatch } = useConfigForm();
-  const isFetching = useIsFetching(undefined, queryClient);
   const { formData, latestConfig } = state;
 
   const { register, formState, watch, setValue, trigger, setError, clearErrors } = useForm<GeneralInfoForm>({
@@ -67,7 +64,6 @@ export const Step1GeneralInfo: React.FC = () => {
           error={!!errors.configName}
           helperText={errors.configName?.message}
           autoComplete="off"
-          InputProps={{ endAdornment: isFetching ? <CircularProgress size={20} /> : null }}
           {...register('configName')}
         />
         <TextField
