@@ -7,9 +7,10 @@ import { useTheme } from '../../hooks/useTheme';
 type MonacoViewerProps = {
   viewData: unknown;
   loading?: boolean;
+  height?: number | string;
 };
 
-export const MonacoViewer: React.FC<MonacoViewerProps> = ({ viewData, loading }) => {
+export const MonacoViewer: React.FC<MonacoViewerProps> = ({ viewData, loading, height }) => {
   const { isDarkMode } = useTheme();
   const jsonString = jsonFormatter(viewData);
   const options: editor.IStandaloneEditorConstructionOptions = {
@@ -21,7 +22,7 @@ export const MonacoViewer: React.FC<MonacoViewerProps> = ({ viewData, loading })
         defaultLanguage={'json'}
         theme={isDarkMode ? 'vs-dark' : 'light'}
         loading={loading}
-        height={'85vh'}
+        height={height}
         value={jsonString}
         options={options}
       />

@@ -46,7 +46,7 @@ const ConfigPageTabs: React.FC<ConfigPageTabsProps> = ({ configInfo, processedVe
       component: (
         <>
           <PageTitle title={`${nameAndVersion} · Config JSON`} />
-          <MonacoViewer viewData={configInfo.config} />
+          <MonacoViewer height={'85vh'} viewData={configInfo.config} />
         </>
       ),
     },
