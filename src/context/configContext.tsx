@@ -19,7 +19,6 @@ const initialState: ConfigFormState = {
       previousVersion: 1,
       nextVersion: 1,
       rollBackVersion: 1,
-      latestConfigData: {},
     },
   },
   validation: {

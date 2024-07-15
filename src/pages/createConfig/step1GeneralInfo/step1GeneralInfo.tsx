@@ -34,18 +34,20 @@ export const Step1GeneralInfo: React.FC = () => {
   }, [isValid, configName, schemaId, description, dispatch]);
 
   useEffect(() => {
-    if (latestConfig) {
-      if (latestConfig.schemaId !== schemaId) {
-        setError(
-          'root',
-          { message: `mis-match schema to config name (the matching schema is: "${latestConfig.schemaId}")`, type: 'onChange' },
-          { shouldFocus: true }
-        );
-        dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: false });
-        return;
-      }
-    }
     clearErrors('root');
+
+    if (!latestConfig) {
+      return;
+    }
+
+    if (latestConfig.schemaId !== schemaId) {
+      setError(
+        'root',
+        { message: `mismatch schema to config name (the matching schema is: "${latestConfig.schemaId}")`, type: 'onChange' },
+        { shouldFocus: true }
+      );
+      return dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: false });
+    }
   }, [schemaId, latestConfig, setError, clearErrors, configName, dispatch]);
 
   const handleSchemaSelectDataChange = (value: string) => {
