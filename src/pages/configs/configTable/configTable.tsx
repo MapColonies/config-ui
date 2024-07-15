@@ -7,6 +7,7 @@ import { routes } from '../../../routing/routes';
 import Styles from './configTable.module.scss';
 import { config } from '../../../api/client';
 import { removeBaseUrlFromSchemaId } from '../../../utils/schemaUtils';
+import { ConfigModeState } from '../../createConfig/createConfig.types';
 
 type TableConfigData = Omit<config, 'config'>;
 
@@ -65,10 +66,30 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
         <>
           <ActionMenu>
             <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}`)}>View Config</MenuItem>
-            <MenuItem disabled={true} onClick={() => navigate(routes.CREATE_CONFIG)}>
+            <MenuItem
+              onClick={() =>
+                navigate(routes.CREATE_CONFIG, {
+                  state: {
+                    versionedConfigData: { name: row.configName, version: 'latest' },
+                    mode: 'NEW_VERSION',
+                  } as ConfigModeState,
+                })
+              }
+            >
               Create New Version
             </MenuItem>
-            <MenuItem disabled={true}>Rollback To Version</MenuItem>
+            <MenuItem
+              onClick={() =>
+                navigate(routes.CREATE_CONFIG, {
+                  state: {
+                    versionedConfigData: { name: row.configName, version: row.version },
+                    mode: 'ROLLBACK',
+                  } as ConfigModeState,
+                })
+              }
+            >
+              Rollback To Version
+            </MenuItem>
           </ActionMenu>
         </>
       ),

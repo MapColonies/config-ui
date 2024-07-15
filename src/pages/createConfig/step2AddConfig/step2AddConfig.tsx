@@ -3,22 +3,18 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiError, getSchema } from '../../../api/client';
 import { MonacoEditor } from '../../../components/monacoEditor/monacoEditor';
 import { useCallback, useEffect, useState } from 'react';
-import { ConfigData } from '../createConfig.types';
 import { dereferenceConfig, isConfigRef } from '../../../utils/monaco/configRefHandler';
 import { ErrorType } from '../../../components/detailCard/detailCard.types';
 import { validateJson } from '../../../utils/ajv';
 import { dereferenceJsonSchema } from '../../../utils/schemaRefParser';
 import DetailCard, { DetailCardProps } from '../../../components/detailCard/detailCard';
 import { Link } from 'react-router-dom';
+import { useConfigForm } from '../../../hooks/useConfigForm';
 
-type Step2AddConfigProps = {
-  schemaId: string;
-  onDataChange: (data: ConfigData | undefined, isValid: boolean) => void;
-  onJsonStringChange: (json: string | undefined) => void;
-  initialJsonStringData?: string | undefined;
-};
-
-export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, onJsonStringChange, schemaId, initialJsonStringData = '{}' }) => {
+export const Step2AddConfig: React.FC = () => {
+  const { state, dispatch } = useConfigForm();
+  const { schemaId } = state.formData.step1;
+  const { configJsonStringData } = state.formData.step2;
   const fetchSchema = useCallback(() => getSchema({ id: schemaId, shouldDereference: false }), [schemaId]);
   const { data: schema, isSuccess } = useQuery({
     queryKey: [getSchema.name, schemaId],
@@ -42,13 +38,18 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
   }, [isSuccess]);
 
   const handleEditorChange = async (value: string | undefined) => {
+    if (value === undefined) {
+      return;
+    }
+
+    dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configJsonStringData: value } });
     const newErrors: DetailCardProps[] = [];
-    let jsonDereferenced = value ?? '';
-    onJsonStringChange(value);
+    let stringValue = value;
+
     try {
-      if (value !== undefined && isConfigRef(value)) {
+      if (isConfigRef(value)) {
         setIsFetching(true);
-        jsonDereferenced = await dereferenceConfig(value);
+        stringValue = await dereferenceConfig(value);
       }
     } catch (error) {
       if (error instanceof ApiError) {
@@ -56,18 +57,20 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
           newErrors.push({ variant: 'error', title: ErrorType.VALIDATION_ERROR, message: 'Config not found' });
         } else {
           newErrors.push({ variant: 'error', title: ErrorType.NETWORK_ERROR, message: error.message });
-          setErrors(newErrors);
-          onDataChange(undefined, false);
-          return;
         }
+        dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: undefined } });
+        dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step2', payload: false });
+        setErrors(newErrors);
+        return;
       }
     } finally {
       setIsFetching(false);
     }
     try {
-      const json = JSON.parse(jsonDereferenced);
+      const json = JSON.parse(stringValue);
       const { isValid, errors } = await validateJson(schema, json);
-      onDataChange(json, isValid);
+      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: json } });
+      dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step2', payload: isValid });
       if (!isValid) {
         errors?.forEach((error) => {
           newErrors.push({ variant: 'error', title: ErrorType.VALIDATION_ERROR, message: error.message });
@@ -80,7 +83,8 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
       }
       newErrors.push({ variant: 'error', title: ErrorType.JSON_PARSE_ERROR, message: errMessage });
 
-      onDataChange(undefined, false);
+      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: undefined } });
+      dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step2', payload: false });
     }
     setErrors(newErrors);
   };
@@ -89,7 +93,7 @@ export const Step2AddConfig: React.FC<Step2AddConfigProps> = ({ onDataChange, on
     <>
       <Box sx={{ display: 'flex', pt: '1%', flexDirection: { xs: 'column', md: 'row' }, gap: 1 }}>
         <MonacoEditor
-          defaultValue={initialJsonStringData}
+          defaultValue={configJsonStringData}
           schema={dereferencedSchema}
           onChange={handleEditorChange}
           height={'70vh'}

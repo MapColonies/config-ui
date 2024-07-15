@@ -1,9 +1,52 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material';
+import { useConfigForm } from '../../../hooks/useConfigForm';
+
+type StatusDetails = {
+  header: string;
+  message: string;
+};
 
 export const Step3ReviewAndApprove: React.FC = () => {
+  const { state } = useConfigForm();
+  const { nextVersion, mode, rollBackVersion } = state.formData.step3;
+  const { configName } = state.formData.step1;
+
+  const getStatusMessage = (): StatusDetails => {
+    switch (mode) {
+      case 'NEW_CONFIG':
+        return {
+          header: `You are creating a new configuration "${configName}"`,
+          message: ``,
+        };
+
+      case 'NEW_VERSION':
+        return {
+          header: `You are adding a new version to the configuration "${configName}"`,
+          message: `The new version will be v${nextVersion}`,
+        };
+
+      case 'ROLLBACK':
+        return {
+          header: `You are rolling back the configuration "${configName}"`,
+          message: `The configuration will be rolled back to v${rollBackVersion}, the new version will be v${nextVersion}`,
+        };
+    }
+  };
+
+  const { header, message } = getStatusMessage();
+
   return (
     <Box>
-      <Typography variant="h6">{'Will Be available soon (for now just click on the Create Config button)'}</Typography>
+      <Card sx={{ mt: 2 }}>
+        <CardContent>
+          <Typography variant="h6" component="div" gutterBottom>
+            {header}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {message}
+          </Typography>
+        </CardContent>
+      </Card>
     </Box>
   );
 };
