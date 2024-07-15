@@ -1,6 +1,6 @@
 # config-ui
 
-Config Mange is a web application responsible for managing all configurations and JSON schemas of the Map Colonies Project. The application allows users to create configurations based on schemas, view them in a table, create new configurations, roll back to existing ones, and create new configurations from existing ones.
+Config UI is a web application responsible for managing all configurations  of the Map Colonies project. The application allows users to create configurations based on Schemas, view them in a table, create new configurations, roll back to existing ones, and create new configurations from existing ones.
 
 # React + TypeScript + Vite
 
