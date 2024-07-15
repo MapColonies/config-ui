@@ -1,4 +1,4 @@
-import { version } from '../api/client';
+import { config as Config, version } from '../api/client';
 import { GeneralInfoForm } from '../pages/createConfig/step1GeneralInfo/step1GeneralInfo.schemas';
 
 export enum StepEnum {
@@ -23,7 +23,6 @@ export type ConfigFormData = {
     previousVersion: version;
     nextVersion: version;
     rollBackVersion: version;
-    latestConfigData: ConfigData;
   };
 };
 
@@ -37,6 +36,7 @@ export type ConfigFormState = {
   formData: ConfigFormData;
   validation: ValidationState;
   currentStep: StepEnum;
+  latestConfig: Config | undefined;
   isSubmitting: boolean;
   isSubmittingError: boolean;
   isSubmittingSuccess: boolean;
@@ -54,4 +54,5 @@ export type ConfigFormAction =
   | { type: 'SET_STEP'; payload: number }
   | SetFormDataAction
   | { type: 'SET_VALIDATION_RESULT'; step: keyof ValidationState; payload: boolean }
-  | { type: 'LOAD_EXISTING_CONFIG'; payload: ConfigFormData; startStep: StepEnum };
+  | { type: 'LOAD_EXISTING_CONFIG'; payload: ConfigFormData; startStep: StepEnum }
+  | { type: 'SET_LATEST_CONFIG'; payload: Config | undefined };
