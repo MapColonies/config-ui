@@ -34,7 +34,6 @@ export const Step2AddConfig: React.FC = () => {
   //triggering initial validation on component mount
   useEffect(() => {
     handleEditorChange(state.formData.step2.configJsonStringData);
-    handleEditorChange(state.formData.step2.configJsonStringData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
