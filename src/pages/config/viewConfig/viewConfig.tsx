@@ -1,11 +1,17 @@
 import { Box } from '@mui/material';
+import Ajv2019 from 'ajv/dist/2019';
+import * as draft7MetaSchema from 'ajv/dist/refs/json-schema-draft-07.json' assert { type: 'json' };
 import { config as Config, getSchema } from '../../../api/client';
 import Form from '@rjsf/mui';
 import { RJSFSchema } from '@rjsf/utils';
-import validator from '@rjsf/validator-ajv8';
+import { customizeValidator } from '@rjsf/validator-ajv8';
 import { useQuery } from '@tanstack/react-query';
 import Styles from './viewConfig.module.scss';
 import { QueryDataRenderer } from '../../../components/queryDataRenderer/queryDataRenderer';
+
+const validator = customizeValidator({ ajvOptionsOverrides: { discriminator: true, keywords: ['x-env-value'] }, AjvClass: Ajv2019 });
+
+validator.ajv.addMetaSchema(draft7MetaSchema);
 
 type ViewConfigPageProps = {
   configInfo: Config;

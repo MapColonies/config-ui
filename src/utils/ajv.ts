@@ -1,4 +1,5 @@
-import ajv, { AnySchemaObject, SchemaObject } from 'ajv';
+import ajv, { AnySchemaObject, SchemaObject } from 'ajv/dist/2019.js';
+import * as draft7MetaSchema from 'ajv/dist/refs/json-schema-draft-07.json' assert { type: 'json' };
 import addFormats from 'ajv-formats';
 import { getSchema } from '../api/client';
 import { ErrorMessages } from './errors/error.types';
@@ -12,6 +13,8 @@ export const ajvInstance = new ajv({
   },
   allErrors: true,
 });
+
+ajvInstance.addMetaSchema(draft7MetaSchema, 'http://json-schema.org/draft-07/schema#');
 
 addFormats(ajvInstance);
 
