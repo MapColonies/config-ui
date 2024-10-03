@@ -44,6 +44,7 @@
     "@map-colonies/eslint-config": "^4.0.0",
     "@map-colonies/prettier-config": "^0.0.1",
     "@map-colonies/standard-version-update-helm-version": "^2.0.1",
+    "@rollup/plugin-replace": "^6.0.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
