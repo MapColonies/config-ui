@@ -17,7 +17,7 @@ export const SchemaSelect: React.FC<SchemaSelectProps> = ({ onChange, initialVal
 
   const initialSelection = useMemo(() => options.find((option) => option.id === initialValue) ?? null, [options, initialValue]);
 
-  const handleSelectChange = (_, value: GroupOption | null) => {
+  const handleSelectChange = (_: React.SyntheticEvent, value: GroupOption | null) => {
     if (value) {
       onChange(value.id);
     }

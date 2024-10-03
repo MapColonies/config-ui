@@ -49,7 +49,7 @@ export const ConfigInfoPage: React.FC<ConfigInfoPageProps> = ({ configInfo }) =>
       ),
     },
     { key: 'Owner', value: configInfo.createdBy },
-    { key: 'Created At', value: new Date(configInfo.createdAt).toLocaleString() },
+    { key: 'Created At', value: new Date(configInfo.createdAt ?? '').toLocaleString() },
   ];
 
   return (

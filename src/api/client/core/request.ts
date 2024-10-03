@@ -180,6 +180,7 @@ export const sendRequest = async (
 
   let request: RequestInit = {
     headers,
+    // @ts-expect-error part of the generated fetch API
     body: body ?? formData,
     method: options.method,
     signal: controller.signal,

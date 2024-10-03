@@ -56,7 +56,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
         </Box>
       ),
     },
-    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date(value).toLocaleString() },
+    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date(value ?? '').toLocaleString() },
     { id: 'createdBy', label: 'Owner', sortable: true },
     {
       id: 'actions',
