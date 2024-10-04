@@ -25,7 +25,7 @@ export const validateJson = async (schema: SchemaObject | undefined, data: objec
       return { isValid: false, errors: [{ message: ErrorMessages.SchemaMissing }] };
     }
     const validate = await ajvInstance.compileAsync(schema);
-    const isValid = validate(data);
+    const isValid = validate(structuredClone(data));
     return { isValid, errors: validate.errors };
   } catch (err) {
     let errorMessage = ErrorMessages.Unknown;
