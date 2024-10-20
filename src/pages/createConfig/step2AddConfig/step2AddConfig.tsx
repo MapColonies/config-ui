@@ -69,7 +69,7 @@ export const Step2AddConfig: React.FC = () => {
     try {
       const json = JSON.parse(stringValue);
       const { isValid, errors } = await validateJson(schema, json);
-      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: json } });
+      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: JSON.parse(value) } });
       dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step2', payload: isValid });
       if (!isValid) {
         errors?.forEach((error) => {
