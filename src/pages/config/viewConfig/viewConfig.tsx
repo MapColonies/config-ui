@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import Styles from './viewConfig.module.scss';
 import { QueryDataRenderer } from '../../../components/queryDataRenderer/queryDataRenderer';
 
-const validator = customizeValidator({ ajvOptionsOverrides: { discriminator: true, keywords: ['x-env-value'] }, AjvClass: Ajv2019 });
+const validator = customizeValidator({ ajvOptionsOverrides: { discriminator: true, keywords: ['x-env-value', 'x-env-format'] }, AjvClass: Ajv2019 });
 
 validator.ajv.addMetaSchema(draft7MetaSchema);
 

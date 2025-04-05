@@ -5,7 +5,7 @@ import { getSchema } from '../api/client';
 import { ErrorMessages } from './errors/error.types';
 
 export const ajvInstance = new ajv({
-  keywords: ['x-env-value'],
+  keywords: ['x-env-value', 'x-env-format'],
   useDefaults: true,
   discriminator: true,
   loadSchema: async (uri): Promise<AnySchemaObject> => {
