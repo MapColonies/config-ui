@@ -67,9 +67,10 @@ export const Step2AddConfig: React.FC = () => {
       setIsFetching(false);
     }
     try {
-      const json = JSON.parse(stringValue);
+      const json = JSON.parse(stringValue); // This is dereferenced for validation
+      const originalJson = JSON.parse(value); // This is the original user input with $ref
       const { isValid, errors } = await validateJson(schema, json);
-      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: JSON.parse(value) } });
+      dispatch({ type: 'SET_FORM_DATA', step: 'step2', payload: { configData: originalJson } });
       dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step2', payload: isValid });
       if (!isValid) {
         errors?.forEach((error) => {
@@ -115,7 +116,8 @@ export const Step2AddConfig: React.FC = () => {
             message={
               <>
                 <Typography variant="body2" color="text.secondary">
-                  <b>Config Reference:</b> Use the following format to reference an existing config: <b>$ref</b>
+                  <b>Config Reference:</b> Use the following format to reference an existing config: <b>$ref</b> with configName, version, and
+                  schemaId
                 </Typography>
               </>
             }

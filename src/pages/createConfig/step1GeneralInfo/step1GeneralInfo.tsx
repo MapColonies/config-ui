@@ -40,10 +40,17 @@ export const Step1GeneralInfo: React.FC = () => {
       return;
     }
 
-    if (latestConfig.schemaId !== schemaId) {
+    // Check if there's a config with the same name but completely different schema
+    const baseSchemaUrl = schemaId.split('/').slice(0, -1).join('/'); // Remove version part
+    const latestConfigBaseSchemaUrl = latestConfig.schemaId.split('/').slice(0, -1).join('/');
+
+    if (baseSchemaUrl !== latestConfigBaseSchemaUrl) {
       setError(
         'root',
-        { message: `mismatch schema to config name (the matching schema is: "${latestConfig.schemaId}")`, type: 'onChange' },
+        {
+          message: `Cannot create config with name "${configName}" using schema "${schemaId}". A config with the same name already exists using a different schema: "${latestConfig.schemaId}". Config names must be unique across different schema families.`,
+          type: 'onChange',
+        },
         { shouldFocus: true }
       );
       return dispatch({ type: 'SET_VALIDATION_RESULT', step: 'step1', payload: false });

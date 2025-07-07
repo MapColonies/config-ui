@@ -13,7 +13,7 @@ export const isStringWithValue = (value: unknown): value is string => {
   return isString(value) && value !== '';
 };
 
-export const isBlob = (value: unknown): value is Blob => {
+export const isBlob = (value: any): value is Blob => {
   return value instanceof Blob;
 };
 
@@ -25,6 +25,7 @@ export const base64 = (str: string): string => {
   try {
     return btoa(str);
   } catch (err) {
+    // @ts-ignore
     return Buffer.from(str).toString('base64');
   }
 };
@@ -61,7 +62,6 @@ const getUrl = (config: OpenAPIConfig, options: ApiRequestOptions): string => {
   const encoder = config.ENCODE_PATH || encodeURI;
 
   const path = options.url.replace('{api-version}', config.VERSION).replace(/{(.*?)}/g, (substring: string, group: string) => {
-    // eslint-disable-next-line no-prototype-builtins
     if (options.path?.hasOwnProperty(group)) {
       return encoder(String(options.path[group]));
     }
@@ -171,7 +171,7 @@ export const sendRequest = async (
   config: OpenAPIConfig,
   options: ApiRequestOptions,
   url: string,
-  body: unknown,
+  body: any,
   formData: FormData | undefined,
   headers: Headers,
   onCancel: OnCancel
@@ -180,7 +180,6 @@ export const sendRequest = async (
 
   let request: RequestInit = {
     headers,
-    // @ts-expect-error part of the generated fetch API
     body: body ?? formData,
     method: options.method,
     signal: controller.signal,
@@ -276,6 +275,7 @@ export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): 
     511: 'Network Authentication Required',
     ...options.errors,
   };
+
   const error = errors[result.status];
   if (error) {
     throw new ApiError(options, result, error);
@@ -331,7 +331,7 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
 
         catchErrorCodes(options, result);
 
-        resolve(result.body as T);
+        resolve(result.body);
       }
     } catch (error) {
       reject(error);

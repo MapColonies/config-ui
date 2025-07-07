@@ -8,8 +8,6 @@ import type {
   GetConfigsResponse,
   UpsertConfigData,
   UpsertConfigResponse,
-  GetConfigsByNameData,
-  GetConfigsByNameResponse,
   GetVersionedConfigData,
   GetVersionedConfigResponse,
   GetSchemaData,
@@ -30,6 +28,10 @@ import type {
  * @param data.createdBy Filters objects based on the exact value of the createdBy property.
  * @param data.offset Specifies the number of items to skip before starting to return results.
  * @param data.limit Specifies the maximum number of items to return.
+ * @param data.sort Sorts the results based on the value of one or more properties.
+ * The value is a comma-separated list of property names and sort order.
+ * properties should be separated by a colon and sort order should be either asc or desc. For example: configName:asc,schemaId:desc
+ * The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
  * @returns unknown Array containing all the configs returned based on the filters
  * @throws ApiError
  */
@@ -47,9 +49,11 @@ export const getConfigs = (data: GetConfigsData = {}): CancelablePromise<GetConf
       created_by: data.createdBy,
       offset: data.offset,
       limit: data.limit,
+      sort: data.sort,
     },
     errors: {
       400: 'BadRequest',
+      422: 'Unprocessable Entity',
       500: 'Internal Server Error',
     },
   });
@@ -77,36 +81,11 @@ export const upsertConfig = (data: UpsertConfigData): CancelablePromise<UpsertCo
 };
 
 /**
- * get a specific client connection for specific environment
- * @param data The data for the request.
- * @param data.name
- * @param data.shouldDereference should the server bundle all refs into one config
- * @returns config Array containing all the configs with the specific name
- * @throws ApiError
- */
-export const getConfigsByName = (data: GetConfigsByNameData): CancelablePromise<GetConfigsByNameResponse> => {
-  return __request(OpenAPI, {
-    method: 'GET',
-    url: '/config/{name}',
-    path: {
-      name: data.name,
-    },
-    query: {
-      shouldDereference: data.shouldDereference,
-    },
-    errors: {
-      400: 'BadRequest',
-      404: 'Not Found - If client does not exist',
-      500: 'Internal Server Error',
-    },
-  });
-};
-
-/**
  * get a specific version of a config
  * @param data The data for the request.
- * @param data.name
+ * @param data.name The name of the config
  * @param data.version
+ * @param data.schemaId The id of the requested schema
  * @param data.shouldDereference should the server bundle all refs into one config
  * @returns config Object containing the config with the specific name and version or the latest version
  * @throws ApiError
@@ -121,6 +100,7 @@ export const getVersionedConfig = (data: GetVersionedConfigData): CancelableProm
     },
     query: {
       shouldDereference: data.shouldDereference,
+      schemaId: data.schemaId,
     },
     errors: {
       400: 'BadRequest',

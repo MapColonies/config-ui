@@ -29,7 +29,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
             <Box className={Styles.columnWithCopyButton}>
               <ClipboardCopyButton text={row.configName} />
 
-              <MuiLink underline="none" component={Link} to={`/config/${row.configName}/${row.version}`}>
+              <MuiLink underline="none" component={Link} to={`/config/${row.configName}/${row.version}/${encodeURIComponent(row.schemaId)}`}>
                 <Tooltip title={configNameWithVersion} placement="top-start">
                   <Typography className={Styles.truncate} noWrap>
                     {configNameWithVersion}
@@ -56,7 +56,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
         </Box>
       ),
     },
-    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date(value ?? '').toLocaleString() },
+    { id: 'createdAt', label: 'Creation Date', sortable: true, format: (value) => new Date((value as string) ?? '').toLocaleString() },
     { id: 'createdBy', label: 'Owner', sortable: true },
     {
       id: 'actions',
@@ -65,12 +65,12 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
       render: (row: TableConfigData) => (
         <>
           <ActionMenu>
-            <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}`)}>View Config</MenuItem>
+            <MenuItem onClick={() => navigate(`/config/${row.configName}/${row.version}/${encodeURIComponent(row.schemaId)}`)}>View Config</MenuItem>
             <MenuItem
               onClick={() =>
                 navigate(routes.CREATE_CONFIG, {
                   state: {
-                    versionedConfigData: { name: row.configName, version: 'latest' },
+                    versionedConfigData: { name: row.configName, version: 'latest', schemaId: row.schemaId },
                     mode: 'NEW_VERSION',
                   } as ConfigModeState,
                 })
@@ -82,7 +82,7 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
               onClick={() =>
                 navigate(routes.CREATE_CONFIG, {
                   state: {
-                    versionedConfigData: { name: row.configName, version: row.version },
+                    versionedConfigData: { name: row.configName, version: row.version, schemaId: row.schemaId },
                     mode: 'ROLLBACK',
                   } as ConfigModeState,
                 })

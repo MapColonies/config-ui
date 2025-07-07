@@ -8,7 +8,7 @@ export type configName = string;
 
 export type schemaId = string;
 
-export type version = number | 'latest';
+export type version = number;
 
 export type createdAt = string;
 
@@ -17,24 +17,23 @@ export type createdBy = string;
 export type schemaTree = Array<schemaTreeItem | schemaTreeDir>;
 
 export type schemaTreeItem = {
-  name?: string;
-  id?: string;
+  name: string;
+  id: schemaId;
 };
 
 export type schemaTreeDir = {
-  children?: schemaTree;
-  name?: string;
+  children: schemaTree;
+  name: string;
 };
 
 export type config = {
   configName: configName;
   schemaId: schemaId;
   version: version;
-  config: {
-    [key: string]: unknown;
-  };
-  readonly createdAt?: createdAt;
-  readonly createdBy?: createdBy;
+  config: unknown;
+  readonly createdAt: createdAt;
+  readonly createdBy: createdBy;
+  readonly isLatest?: boolean;
 };
 
 export type capabilities = {
@@ -51,6 +50,11 @@ export type capabilities = {
    */
   pubSubEnabled: boolean;
 };
+
+/**
+ * The name of the config
+ */
+export type ParameterConfigNamePath = configName;
 
 /**
  * Filters objects based on the exact value of the configName property.
@@ -98,6 +102,14 @@ export type ParameterLimitQuery = number;
 export type ParameterFullTextQuery = string;
 
 /**
+ * Sorts the results based on the value of one or more properties.
+ * The value is a comma-separated list of property names and sort order.
+ * properties should be separated by a colon and sort order should be either asc or desc. For example: configName:asc,schemaId:desc
+ * The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+ */
+export type ParameterSortQuery = Array<string>;
+
+/**
  * should the server bundle all refs into one config
  */
 export type ParameterShouldDereferenceConfigQuery = boolean;
@@ -136,6 +148,13 @@ export type GetConfigsData = {
    */
   schemaId?: schemaId;
   /**
+   * Sorts the results based on the value of one or more properties.
+   * The value is a comma-separated list of property names and sort order.
+   * properties should be separated by a colon and sort order should be either asc or desc. For example: configName:asc,schemaId:desc
+   * The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+   */
+  sort?: Array<string>;
+  /**
    * Filters objects where the version property exactly matches the specified version string.
    */
   version?: version | 'latest';
@@ -155,18 +174,15 @@ export type UpsertConfigData = {
 
 export type UpsertConfigResponse = unknown;
 
-export type GetConfigsByNameData = {
+export type GetVersionedConfigData = {
+  /**
+   * The name of the config
+   */
   name: configName;
   /**
-   * should the server bundle all refs into one config
+   * The id of the requested schema
    */
-  shouldDereference?: boolean;
-};
-
-export type GetConfigsByNameResponse = config;
-
-export type GetVersionedConfigData = {
-  name: configName;
+  schemaId: schemaId;
   /**
    * should the server bundle all refs into one config
    */
@@ -212,6 +228,10 @@ export type $OpenApiTs = {
          */
         400: error;
         /**
+         * Unprocessable Entity
+         */
+        422: error;
+        /**
          * Internal Server Error
          */
         500: error;
@@ -232,29 +252,6 @@ export type $OpenApiTs = {
          * conflict
          */
         409: error;
-        /**
-         * Internal Server Error
-         */
-        500: error;
-      };
-    };
-  };
-  '/config/{name}': {
-    get: {
-      req: GetConfigsByNameData;
-      res: {
-        /**
-         * Array containing all the configs with the specific name
-         */
-        200: config;
-        /**
-         * BadRequest
-         */
-        400: error;
-        /**
-         * Not Found - If client does not exist
-         */
-        404: error;
         /**
          * Internal Server Error
          */

@@ -12,6 +12,7 @@ export const $error = {
 
 export const $configName = {
   type: 'string',
+  pattern: '^([a-z0-9]+(-[a-z0-9]+)*)$',
   maxLength: 50,
 } as const;
 
@@ -47,15 +48,15 @@ export const $schemaTree = {
           children: [
             {
               name: 'v1',
-              url: 'https://mapcolonies.com/common/boilerplate/v1',
+              id: 'https://mapcolonies.com/common/boilerplate/v1',
             },
             {
               name: 'v2',
-              url: 'https://mapcolonies.com/common/boilerplate/v2',
+              id: 'https://mapcolonies.com/common/boilerplate/v2',
             },
             {
               name: 'v3',
-              url: 'https://mapcolonies.com/common/boilerplate/v3',
+              id: 'https://mapcolonies.com/common/boilerplate/v3',
             },
           ],
         },
@@ -64,7 +65,7 @@ export const $schemaTree = {
           children: [
             {
               name: 'v1',
-              url: 'https://mapcolonies.com/common/db/v1',
+              id: 'https://mapcolonies.com/common/db/v1',
             },
           ],
         },
@@ -85,18 +86,20 @@ export const $schemaTree = {
 
 export const $schemaTreeItem = {
   type: 'object',
+  required: ['name', 'id'],
   properties: {
     name: {
       type: 'string',
     },
     id: {
-      type: 'string',
+      $ref: '#/components/schemas/schemaId',
     },
   },
 } as const;
 
 export const $schemaTreeDir = {
   type: 'object',
+  required: ['children', 'name'],
   properties: {
     children: {
       $ref: '#/components/schemas/schemaTree',
@@ -122,7 +125,6 @@ export const $config = {
       $ref: '#/components/schemas/version',
     },
     config: {
-      type: 'object',
       additionalProperties: true,
       example: {
         host: 'localhost',
@@ -144,6 +146,10 @@ export const $config = {
           $ref: '#/components/schemas/createdBy',
         },
       ],
+    },
+    isLatest: {
+      type: 'boolean',
+      readOnly: true,
     },
   },
 } as const;

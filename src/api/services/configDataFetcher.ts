@@ -7,7 +7,7 @@ export async function fetchConfigData(config: GetVersionedConfigData): Promise<G
   const configResponse =
     cacheConfig ??
     (await queryClient.fetchQuery({
-      queryKey: [getVersionedConfig.name, config.name, config.version],
+      queryKey: [getVersionedConfig.name, config.name, config.version, config.schemaId],
       queryFn: () => getVersionedConfig(config),
       queryHash: queryHash,
     }));
@@ -16,10 +16,10 @@ export async function fetchConfigData(config: GetVersionedConfigData): Promise<G
 }
 
 export function getVersionedConfigQueryHash(config: GetVersionedConfigData): string {
-  return `${getVersionedConfig.name}_${config.name}_${config.version}`;
+  return `${getVersionedConfig.name}_${config.name}_${config.version}_${config.schemaId}`;
 }
 
-export function calcConfigVersion(stringVersion: string): Version {
+export function calcConfigVersion(stringVersion: string): Version | 'latest' {
   if (stringVersion === 'latest') {
     return 'latest';
   }

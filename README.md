@@ -8,7 +8,7 @@ Config UI is a web application responsible for managing all configurations  of t
 - **Creating New Configs**: Create new JSON configurations using specific JSON schemas, leveraging the Monaco editor for writing the config and AJV for validation.
 - **Reference Existing Configs**: Reference existing configurations in new ones using the following snippet:
   ```json
-  "$ref": {"configName": "", "version": "latest"}
+  "$ref": {"configName": "", "version": "latest", "schemaId": ""}
   ```
 - **Rollback and Versioning**: Rollback to existing configurations or create new versions from them. The differences between the original and modified configurations are displayed using the Monaco diff editor.
 - **View Config**: Display all metadata and the configuration itself.
@@ -69,7 +69,3 @@ Once the application is set up and running:
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more information.
-
-## Contact Information
-
-For support or questions, please contact [almogk@rafael.co.il].

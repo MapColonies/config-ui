@@ -28,7 +28,7 @@ export const registerRefSnippet = (monaco: Monaco) => {
         startColumn: replaceStart,
         endColumn: position.column,
       };
-      const insertText = `"$ref": {"configName": "", "version": "latest"}`;
+      const insertText = `"$ref": {"configName": "", "version": "latest", "schemaId": ""}`;
       return {
         suggestions: [
           {
@@ -39,7 +39,7 @@ export const registerRefSnippet = (monaco: Monaco) => {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.None,
             detail: 'Insert $ref property',
             documentation: {
-              value: 'Inserts a $ref snippet with configName and version fields',
+              value: 'Inserts a $ref snippet with configName, version, and schemaId fields',
               isTrusted: true,
             },
             sortText: 'aa', // Ensure it sorts above other suggestions

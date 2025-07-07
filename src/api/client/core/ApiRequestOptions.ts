@@ -6,7 +6,7 @@ export type ApiRequestOptions = {
   readonly headers?: Record<string, unknown>;
   readonly query?: Record<string, unknown>;
   readonly formData?: Record<string, unknown>;
-  readonly body?: unknown;
+  readonly body?: any;
   readonly mediaType?: string;
   readonly responseHeader?: string;
   readonly errors?: Record<number | string, string>;

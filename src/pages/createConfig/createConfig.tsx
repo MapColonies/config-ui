@@ -7,7 +7,7 @@ import { Step3ReviewAndApprove } from './step3ReviewAndApprove/step3ReviewAndApp
 import { useCallback, useEffect, useMemo } from 'react';
 import { ConfigModeState } from './createConfig.types';
 import { StepSequence } from '../../components/HorizontalLinearStepper/step.types';
-import { ApiError, UpsertConfigData, getConfigsByName, getVersionedConfig, upsertConfig, version } from '../../api/client';
+import { ApiError, UpsertConfigData, getConfigs, getVersionedConfig, upsertConfig, version } from '../../api/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { routes } from '../../routing/routes';
@@ -33,13 +33,22 @@ export const CreateConfigPage: React.FC = () => {
   const { state: configFormState, dispatch } = useConfigForm();
 
   const { data, isSuccess } = useQuery({
-    queryKey: [getVersionedConfig.name, versionedConfigData?.name, versionedConfigData?.version],
-    queryFn: () => getVersionedConfig(versionedConfigData ?? { name: '', version: 0 }),
-    enabled: !!versionedConfigData,
+    queryKey: [getVersionedConfig.name, versionedConfigData?.name, versionedConfigData?.version, versionedConfigData?.schemaId],
+    queryFn: () => {
+      if (!versionedConfigData?.schemaId) {
+        throw new Error('SchemaId is required for getVersionedConfig');
+      }
+      return getVersionedConfig(versionedConfigData);
+    },
+    enabled: !!versionedConfigData && !!versionedConfigData.schemaId,
   });
 
-  const { mutateAsync: getConfigByName } = useMutation({
-    mutationFn: getConfigsByName,
+  const { mutateAsync: getConfigByNameAndSchema } = useMutation({
+    mutationFn: ({ name, schemaId }: { name: string; schemaId: string }) => getConfigs({ configName: name, schemaId: schemaId, limit: 1 }),
+  });
+
+  const { mutateAsync: getAllConfigsByName } = useMutation({
+    mutationFn: (name: string) => getConfigs({ configName: name }),
   });
 
   useEffect(() => {
@@ -50,7 +59,7 @@ export const CreateConfigPage: React.FC = () => {
           schemaId: data.schemaId,
         },
         step2: {
-          configData: data.config,
+          configData: data.config as { [key: string]: unknown },
           configJsonStringData: jsonFormatter(data.config),
         },
         step3: {
@@ -70,30 +79,112 @@ export const CreateConfigPage: React.FC = () => {
 
   useEffect(() => {
     const configName = configFormState.formData.step1.configName;
-    if (!configName) {
+    const schemaId = configFormState.formData.step1.schemaId;
+
+    if (!configName || !schemaId) {
       return;
     }
 
     let version: version = 1;
 
-    getConfigByName({ name: configName })
-      .then((config) => {
-        version = config.version;
-        const nextVersion = (version as number) + 1;
-        dispatch({
-          type: 'SET_FORM_DATA',
-          step: 'step3',
-          payload: { mode: mode ?? 'NEW_VERSION', nextVersion, previousVersion: version },
-        });
-        dispatch({ type: 'SET_LATEST_CONFIG', payload: config });
+    // First check if there's a config with the same name and schema
+    getConfigByNameAndSchema({ name: configName, schemaId })
+      .then((response) => {
+        const config = response.configs?.[0];
+        if (config) {
+          // Config exists with same name and schema - this will be a new version
+          version = config.version;
+          const nextVersion = (version as number) + 1;
+          dispatch({
+            type: 'SET_FORM_DATA',
+            step: 'step3',
+            payload: { mode: mode ?? 'NEW_VERSION', nextVersion, previousVersion: version },
+          });
+          dispatch({ type: 'SET_LATEST_CONFIG', payload: config });
+        } else {
+          // No config with same name and schema, but need to check if name exists with different schemas
+          getAllConfigsByName(configName)
+            .then((allConfigsResponse) => {
+              const existingConfigs = allConfigsResponse.configs ?? [];
+              if (existingConfigs.length > 0) {
+                // Check if any existing config has a completely different schema (not just different version)
+                const hasConflictingSchema = existingConfigs.some((existingConfig) => {
+                  const baseSchemaUrl = schemaId.split('/').slice(0, -1).join('/'); // Remove version part
+                  const existingBaseSchemaUrl = existingConfig.schemaId.split('/').slice(0, -1).join('/');
+                  return baseSchemaUrl !== existingBaseSchemaUrl;
+                });
+
+                if (hasConflictingSchema) {
+                  // This means there's a config with same name but completely different schema
+                  const conflictingConfig = existingConfigs.find((existingConfig) => {
+                    const baseSchemaUrl = schemaId.split('/').slice(0, -1).join('/');
+                    const existingBaseSchemaUrl = existingConfig.schemaId.split('/').slice(0, -1).join('/');
+                    return baseSchemaUrl !== existingBaseSchemaUrl;
+                  });
+                  dispatch({ type: 'SET_LATEST_CONFIG', payload: conflictingConfig });
+                } else {
+                  // Same base schema, different version - this is allowed
+                  dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+                  dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+                }
+              } else {
+                // No existing configs with this name
+                dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+                dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+              }
+            })
+            .catch((error) => {
+              if (error instanceof ApiError && error.status === 404) {
+                dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+                dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+              }
+            });
+        }
       })
       .catch((error) => {
         if (error instanceof ApiError && error.status === 404) {
-          dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
-          dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+          // No config with same name and schema, check for configs with same name but different schemas
+          getAllConfigsByName(configName)
+            .then((allConfigsResponse) => {
+              const existingConfigs = allConfigsResponse.configs ?? [];
+              if (existingConfigs.length > 0) {
+                // Check if any existing config has a completely different schema
+                const hasConflictingSchema = existingConfigs.some((existingConfig) => {
+                  const baseSchemaUrl = schemaId.split('/').slice(0, -1).join('/');
+                  const existingBaseSchemaUrl = existingConfig.schemaId.split('/').slice(0, -1).join('/');
+                  return baseSchemaUrl !== existingBaseSchemaUrl;
+                });
+
+                if (hasConflictingSchema) {
+                  const conflictingConfig = existingConfigs.find((existingConfig) => {
+                    const baseSchemaUrl = schemaId.split('/').slice(0, -1).join('/');
+                    const existingBaseSchemaUrl = existingConfig.schemaId.split('/').slice(0, -1).join('/');
+                    return baseSchemaUrl !== existingBaseSchemaUrl;
+                  });
+                  dispatch({ type: 'SET_LATEST_CONFIG', payload: conflictingConfig });
+                } else {
+                  dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+                  dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+                }
+              } else {
+                dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+                dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+              }
+            })
+            .catch(() => {
+              dispatch({ type: 'SET_FORM_DATA', step: 'step3', payload: { mode: 'NEW_CONFIG', nextVersion: version } });
+              dispatch({ type: 'SET_LATEST_CONFIG', payload: undefined });
+            });
         }
       });
-  }, [getConfigByName, dispatch, configFormState.formData.step1.configName, mode]);
+  }, [
+    getConfigByNameAndSchema,
+    getAllConfigsByName,
+    dispatch,
+    configFormState.formData.step1.configName,
+    configFormState.formData.step1.schemaId,
+    mode,
+  ]);
 
   const { mutateAsync: createConfig } = useMutation({ mutationFn: upsertConfig });
 
@@ -137,14 +228,15 @@ export const CreateConfigPage: React.FC = () => {
         schemaId: configFormState.formData.step1.schemaId,
         version: configFormState.formData.step3.previousVersion,
         config: configFormState.formData.step2.configData,
-      },
+      } as any, // Type assertion needed because UpsertConfigData expects full config type
     };
 
     try {
       await createConfig(upsertData, {
         onSuccess: () => {
           enqueueSnackbar('Config created successfully', snackBarSuccessOptions);
-          navigate(`${routes.CONFIG}/${upsertData.requestBody.configName}/latest`);
+          const encodedSchemaId = encodeURIComponent(upsertData.requestBody.schemaId);
+          navigate(`${routes.CONFIG}/${upsertData.requestBody.configName}/latest/${encodedSchemaId}`);
         },
         onError: (e) => {
           if (e instanceof ApiError) {
