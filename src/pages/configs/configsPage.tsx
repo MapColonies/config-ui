@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { ConfigTable } from './configTable/configTable';
 import { Button, Divider, Toolbar, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,29 @@ import { QueryDataRenderer } from '../../components/queryDataRenderer/queryDataR
 import { PageTitle } from '../../components/pageTitle/pageTitle';
 
 export const ConfigsPage: React.FC = () => {
-  const { data, error, isLoading, isSuccess } = useQuery({ queryKey: ['configs'], queryFn: () => getConfigs({ limit: 100 }) });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  const fetchConfigs = useCallback(() => {
+    return getConfigs({
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    });
+  }, [page, rowsPerPage]);
+
+  const { data, error, isLoading, isSuccess } = useQuery({
+    queryKey: ['configs', page, rowsPerPage],
+    queryFn: fetchConfigs,
+  });
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(0); // Reset to first page when changing page size
+  };
 
   return (
     <>
@@ -24,7 +46,16 @@ export const ConfigsPage: React.FC = () => {
             <Typography sx={{ color: 'white' }}>Create Config</Typography>
           </Button>
         </Toolbar>
-        <ConfigTable data={data?.configs ?? []} />
+        <ConfigTable
+          data={data?.configs ?? []}
+          pagination={{
+            total: data?.total ?? 0,
+            page,
+            rowsPerPage,
+            onPageChange: handlePageChange,
+            onRowsPerPageChange: handleRowsPerPageChange,
+          }}
+        />
       </QueryDataRenderer>
     </>
   );
