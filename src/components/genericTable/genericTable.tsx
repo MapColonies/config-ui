@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Styles from './genericTable.module.scss';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Box } from '@mui/material';
+import { Pagination, PaginationProps } from '../pagination/pagination';
 
 type PrimitiveObject = Record<string, string | number | boolean>;
 
@@ -17,9 +18,13 @@ export type TableColumn<T extends PrimitiveObject, K extends keyof T = keyof T> 
 export type GenericTableProps<T extends PrimitiveObject> = {
   data: T[];
   columns: TableColumn<T>[];
+  pagination?: Omit<PaginationProps, 'onPageChange' | 'onRowsPerPageChange'> & {
+    onPageChange: (page: number) => void;
+    onRowsPerPageChange: (rowsPerPage: number) => void;
+  };
 };
 
-export const GenericTable = <T extends PrimitiveObject>({ data, columns }: GenericTableProps<T>) => {
+export const GenericTable = <T extends PrimitiveObject>({ data, columns, pagination }: GenericTableProps<T>) => {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<keyof T | ''>('');
 
@@ -38,42 +43,54 @@ export const GenericTable = <T extends PrimitiveObject>({ data, columns }: Gener
   });
 
   return (
-    <TableContainer sx={{ maxHeight: '80vh' }}>
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            {columns.map((column) => (
-              <TableCell key={column.id as string} align={column.align}>
-                <TableSortLabel
-                  className={Styles.tableColumn}
-                  active={orderBy === column.id}
-                  direction={orderBy === column.id ? order : 'asc'}
-                  disabled={!(column.sortable ?? false)}
-                  onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
-                >
-                  {column.label}
-                </TableSortLabel>
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedData.map((row: T, index: number) => (
-            <TableRow key={index}>
-              {columns.map((column: TableColumn<T>) => {
-                const cellValue = row[column.id as keyof T];
-                const cellFormat = column.format ? column.format(cellValue) : cellValue;
-                const cellRender = column.render ? column.render(row) : cellFormat;
-                return (
-                  <TableCell key={column.id as string} align={column.align}>
-                    {cellRender}
-                  </TableCell>
-                );
-              })}
+    <Box>
+      <TableContainer sx={{ maxHeight: '80vh' }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell key={column.id as string} align={column.align}>
+                  <TableSortLabel
+                    className={Styles.tableColumn}
+                    active={orderBy === column.id}
+                    direction={orderBy === column.id ? order : 'asc'}
+                    disabled={!(column.sortable ?? false)}
+                    onClick={() => column.id !== 'actions' && handleRequestSort(column.id as keyof T)}
+                  >
+                    {column.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {sortedData.map((row: T, index: number) => (
+              <TableRow key={index}>
+                {columns.map((column: TableColumn<T>) => {
+                  const cellValue = row[column.id as keyof T];
+                  const cellFormat = column.format ? column.format(cellValue) : cellValue;
+                  const cellRender = column.render ? column.render(row) : cellFormat;
+                  return (
+                    <TableCell key={column.id as string} align={column.align}>
+                      {cellRender}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {pagination && (
+        <Pagination
+          total={pagination.total}
+          page={pagination.page}
+          rowsPerPage={pagination.rowsPerPage}
+          onPageChange={pagination.onPageChange}
+          onRowsPerPageChange={pagination.onRowsPerPageChange}
+          rowsPerPageOptions={pagination.rowsPerPageOptions}
+        />
+      )}
+    </Box>
   );
 };

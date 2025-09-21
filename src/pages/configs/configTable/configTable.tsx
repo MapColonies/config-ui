@@ -8,14 +8,19 @@ import Styles from './configTable.module.scss';
 import { config } from '../../../api/client';
 import { removeBaseUrlFromSchemaId } from '../../../utils/schemaUtils';
 import { ConfigModeState } from '../../createConfig/createConfig.types';
+import { PaginationProps } from '../../../components/pagination/pagination';
 
 type TableConfigData = Omit<config, 'config'>;
 
 type ConfigTableProps = {
   data: TableConfigData[];
+  pagination?: Omit<PaginationProps, 'onPageChange' | 'onRowsPerPageChange'> & {
+    onPageChange: (page: number) => void;
+    onRowsPerPageChange: (rowsPerPage: number) => void;
+  };
 };
 
-export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
+export const ConfigTable: React.FC<ConfigTableProps> = ({ data, pagination }) => {
   const navigate = useNavigate();
   const columns: TableColumn<TableConfigData>[] = [
     {
@@ -96,5 +101,5 @@ export const ConfigTable: React.FC<ConfigTableProps> = ({ data }) => {
     },
   ];
 
-  return <GenericTable<TableConfigData> columns={columns} data={data} />;
+  return <GenericTable<TableConfigData> columns={columns} data={data} pagination={pagination} />;
 };
