@@ -132,7 +132,7 @@ export const HorizontalLinearStepper: React.FC<HorizontalLinearStepperProps> = (
               <CircularProgress />
             ) : (
               <Button disabled={!(steps[activeStep].isValid ?? false)} onClick={handleNext}>
-                {activeStep === steps.length - 1 ? finish?.buttonName ?? 'Finish' : next?.buttonName ?? 'Next'}
+                {activeStep === steps.length - 1 ? (finish?.buttonName ?? 'Finish') : (next?.buttonName ?? 'Next')}
               </Button>
             )}
           </Box>

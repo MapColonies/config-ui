@@ -10,7 +10,7 @@ export const flattenData = (data: schemaTree, parentName: string = ''): GroupOpt
   let options: GroupOption[] = [];
   data.forEach((item) => {
     if (isSchemaTreeDir(item)) {
-      const groupName = parentName ? `${parentName}/${item.name}` : item.name ?? '';
+      const groupName = parentName ? `${parentName}/${item.name}` : (item.name ?? '');
       if (item.children) {
         options = options.concat(flattenData(item.children, groupName));
       }
