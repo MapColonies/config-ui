@@ -1,0 +1,982 @@
+openapi: 3.0.1
+servers:
+  - url: /api
+  - url: /
+info:
+  title: config-server
+  description: >-
+    This is a config server that provides the means to manage all the
+    configurations
+  version: 2.0.7
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+paths:
+  /config:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/FullTextQuery"
+        - $ref: "#/components/parameters/ConfigNameQuery"
+        - $ref: "#/components/parameters/SchemaIdQuery"
+        - $ref: "#/components/parameters/VersionQuery"
+        - $ref: "#/components/parameters/CreatedAtGreaterThanQuery"
+        - $ref: "#/components/parameters/CreatedAtLessThanQuery"
+        - $ref: "#/components/parameters/CreatedByQuery"
+        - $ref: "#/components/parameters/OffsetQuery"
+        - $ref: "#/components/parameters/LimitQuery"
+        - $ref: "#/components/parameters/SortQuery"
+      operationId: getConfigs
+      summary: get configs based on filters
+      responses:
+        "200":
+          description: Array containing all the configs returned based on the filters
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  configs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/config"
+                  total:
+                    type: integer
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "422":
+          $ref: "#/components/responses/422UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+    post:
+      operationId: upsertConfig
+      summary: Create a new config or a new version of an existing config
+      requestBody:
+        required: true
+        description: >-
+          If no version is provided and no version with the same name exists, a
+          new config will be created. If a version is provided, a new version of
+          an existing config will be created. The version provided should match
+          the latest version of the existing config.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/config"
+      responses:
+        "201":
+          description: Created
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "409":
+          $ref: "#/components/responses/409Conflict"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /config/{name}/{version}:
+    parameters:
+      - $ref: "#/components/parameters/ConfigNamePath"
+      - in: path
+        name: version
+        required: true
+        schema:
+          oneOf:
+            - type: string
+              enum:
+                - latest
+            - $ref: "#/components/schemas/version"
+      - $ref: "#/components/parameters/ShouldDereferenceConfigQuery"
+      - in: query
+        name: schemaId
+        description: The id of the requested schema
+        required: true
+        schema:
+          $ref: "#/components/schemas/schemaId"
+      - $ref: "#/components/parameters/IfNoneMatchHeader"
+    get:
+      operationId: getVersionedConfig
+      summary: get a specific version of a config
+      responses:
+        "200":
+          description: >-
+            Object containing the config with the specific name and version or
+            the latest version
+          headers:
+            ETag:
+              description: Entity tag for caching and conditional requests
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/config"
+        "304":
+          description: Not Modified - Config has not changed since the ETag provided in If-None-Match header
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /config/{name}/{version}/full:
+    parameters:
+      - $ref: "#/components/parameters/ConfigNamePath"
+      - in: path
+        name: version
+        required: true
+        schema:
+          oneOf:
+            - type: string
+              enum:
+                - latest
+            - $ref: "#/components/schemas/version"
+      - in: query
+        name: schemaId
+        description: The id of the requested schema
+        required: true
+        schema:
+          $ref: "#/components/schemas/schemaId"
+    get:
+      operationId: getFullConfig
+      summary: Get comprehensive config metadata for inspector page
+      description: Returns all data needed for config inspector including raw/resolved/defaults config, dependencies, versions, env vars, and stats. Single endpoint replaces multiple API calls.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/configFullMetadata"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /schema:
+    get:
+      parameters:
+        - name: id
+          in: query
+          description: The id of the requested schema
+          required: true
+          schema:
+            $ref: "#/components/schemas/schemaId"
+        - name: shouldDereference
+          in: query
+          description: should the server bundle all refs into one schema
+          schema:
+            type: boolean
+      operationId: getSchema
+      summary: returns the requested schema
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /schema/tree:
+    get:
+      operationId: getSchemasTree
+      summary: return a tree representation of all the schemas
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schemaTree"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /schema/index:
+    get:
+      operationId: getSchemasIndex
+      summary: Get searchable index of all schemas
+      description: Returns metadata for all schemas. Frontend can build client-side search index from this data.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - schemas
+                properties:
+                  schemas:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - path
+                        - version
+                        - category
+                      properties:
+                        id:
+                          type: string
+                          format: uri
+                        name:
+                          type: string
+                        path:
+                          type: string
+                        version:
+                          type: string
+                        description:
+                          type: string
+                        category:
+                          type: string
+                        title:
+                          type: string
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /schema/full:
+    get:
+      operationId: getFullSchema
+      summary: Get comprehensive schema metadata
+      parameters:
+        - name: id
+          in: query
+          description: The id of the requested schema
+          required: true
+          schema:
+            $ref: "#/components/schemas/schemaId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - name
+                  - path
+                  - version
+                  - category
+                  - rawContent
+                  - dereferencedContent
+                  - dependencies
+                  - envVars
+                properties:
+                  id:
+                    type: string
+                    format: uri
+                  name:
+                    type: string
+                  path:
+                    type: string
+                  version:
+                    type: string
+                  category:
+                    type: string
+                  description:
+                    type: string
+                  title:
+                    type: string
+                  rawContent:
+                    type: object
+                    additionalProperties: true
+                    description: Raw JSON Schema
+                  dereferencedContent:
+                    type: object
+                    additionalProperties: true
+                    description: Schema with all $refs resolved
+                  typeContent:
+                    type: string
+                    nullable: true
+                    description: TypeScript type definitions
+                  dependencies:
+                    type: object
+                    required:
+                      - parents
+                      - children
+                    properties:
+                      parents:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/schemaReference"
+                        description: All parent schemas that reference this schema (nested tree structure)
+                      children:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/schemaReference"
+                        description: All child schemas referenced by this schema (nested tree structure)
+                  envVars:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - envVariable
+                        - configPath
+                      properties:
+                        envVariable:
+                          type: string
+                          description: Environment variable name
+                        configPath:
+                          type: string
+                          description: JSON path to the property (e.g., "db.host")
+                        format:
+                          type: string
+                          description: Format hint (from x-env-format or format field)
+                        type:
+                          type: string
+                          description: JSON schema type (e.g., "string", "integer")
+                        required:
+                          type: boolean
+                          description: Whether this field is required
+                        description:
+                          type: string
+                          description: Schema description
+                        default:
+                          description: Default value (any type)
+                        refLink:
+                          type: string
+                          format: uri
+                          description: External schema reference if this env var comes from a $ref
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /capabilities:
+    get:
+      operationId: getCapabilities
+      summary: get all capabilities about the server
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/capabilities"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /locks:
+    post:
+      operationId: acquireLock
+      summary: Acquire a lock slot for a specific key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - key
+                - callerId
+                - ttl
+                - limit
+              properties:
+                key:
+                  $ref: "#/components/schemas/key"
+                callerId:
+                  $ref: "#/components/schemas/callerId"
+                ttl:
+                  type: integer
+                  minimum: 1
+                  description: Time to live in seconds
+                limit:
+                  type: integer
+                  minimum: 1
+                  description: Maximum number of concurrent locks for this key
+      responses:
+        "200":
+          description: Lock acquired or renewed successfully
+        "423":
+          description: Locked - Concurrency limit reached
+          headers:
+            Retry-After:
+              description: Number of seconds to wait before retrying
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+  /locks/{key}/{callerId}:
+    delete:
+      operationId: releaseLock
+      summary: Release a lock for a specific key and caller
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/key"
+          description: The lock key
+        - name: callerId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/callerId"
+          description: The caller ID
+      responses:
+        "204":
+          description: Lock released successfully
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+security: []
+components:
+  responses:
+    400BadRequest:
+      description: BadRequest
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    404NotFound:
+      description: Not Found - If client does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    409Conflict:
+      description: conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    422UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    500InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+  parameters:
+    ConfigNamePath:
+      name: name
+      in: path
+      description: The name of the config
+      required: true
+      schema:
+        $ref: "#/components/schemas/configName"
+    ConfigNameQuery:
+      name: config_name
+      in: query
+      description: Filters objects based on the exact value of the configName property.
+      required: false
+      schema:
+        $ref: "#/components/schemas/configName"
+    SchemaIdQuery:
+      name: schema_id
+      in: query
+      description: >-
+        Filters objects where the schemaId property exactly matches the
+        specified URL.
+      required: false
+      schema:
+        $ref: "#/components/schemas/schemaId"
+    VersionQuery:
+      name: version
+      in: query
+      description: >-
+        Filters objects where the version property exactly matches the specified
+        version string.
+      required: false
+      schema:
+        oneOf:
+          - $ref: "#/components/schemas/version"
+          - type: string
+            enum:
+              - latest
+    CreatedAtGreaterThanQuery:
+      name: created_at_gt
+      in: query
+      description: >-
+        Filters objects where the createdAt property is greater than the
+        specified date-time value (format: ISO 8601).
+      required: false
+      schema:
+        $ref: "#/components/schemas/createdAt"
+    CreatedAtLessThanQuery:
+      name: created_at_lt
+      in: query
+      description: >-
+        Filters objects where the createdAt property is less than the specified
+        date-time value (format: ISO 8601).
+      required: false
+      schema:
+        $ref: "#/components/schemas/createdAt"
+    CreatedByQuery:
+      name: created_by
+      in: query
+      description: Filters objects based on the exact value of the createdBy property.
+      required: false
+      schema:
+        $ref: "#/components/schemas/createdBy"
+    OffsetQuery:
+      name: offset
+      in: query
+      description: Specifies the number of items to skip before starting to return results.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+    LimitQuery:
+      name: limit
+      in: query
+      description: Specifies the maximum number of items to return.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+    FullTextQuery:
+      name: q
+      in: query
+      description: >-
+        Search term for full-text search across relevant properties
+        (implementation specific).
+      required: false
+      schema:
+        type: string
+    SortQuery:
+      name: sort
+      in: query
+      description: |-
+        Sorts the results based on the value of one or more properties.
+         The value is a comma-separated list of property names and sort order.
+         properties should be separated by a colon and sort order should be either asc or desc. For example: configName:asc,schemaId:desc
+         The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+      example:
+        - config-name:asc
+        - schema-id:desc
+        - version
+      required: false
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          example: config-name:asc
+          type: string
+          pattern: >-
+            ^(config-name|schema-id|version|created-at|created-by)(:asc|:desc){0,1}$
+    ShouldDereferenceConfigQuery:
+      name: shouldDereference
+      in: query
+      description: should the server bundle all refs into one config
+      schema:
+        type: boolean
+    IfNoneMatchHeader:
+      name: If-None-Match
+      in: header
+      description: ETag value from a previous request to enable conditional GET requests
+      required: false
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    configName:
+      type: string
+      pattern: ^([a-z0-9]+(-[a-z0-9]+)*)$
+      maxLength: 50
+    schemaId:
+      type: string
+      pattern: ^https:\/\/mapcolonies\.com\/.+$
+      example: https://mapcolonies.com/common/db/v1
+    version:
+      type: integer
+      minimum: 1
+    createdAt:
+      type: string
+      format: date-time
+    createdBy:
+      type: string
+      maxLength: 50
+    schemaTree:
+      type: array
+      example:
+        - name: common
+          children:
+            - name: boilerplate
+              children:
+                - name: v1
+                  id: https://mapcolonies.com/common/boilerplate/v1
+                - name: v2
+                  id: https://mapcolonies.com/common/boilerplate/v2
+                - name: v3
+                  id: https://mapcolonies.com/common/boilerplate/v3
+            - name: db
+              children:
+                - name: v1
+                  id: https://mapcolonies.com/common/db/v1
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/schemaTreeItem"
+          - $ref: "#/components/schemas/schemaTreeDir"
+    schemaTreeItem:
+      type: object
+      required:
+        - name
+        - id
+      properties:
+        name:
+          type: string
+        id:
+          $ref: "#/components/schemas/schemaId"
+    schemaTreeDir:
+      type: object
+      required:
+        - children
+        - name
+      properties:
+        children:
+          $ref: "#/components/schemas/schemaTree"
+        name:
+          type: string
+    schemaReference:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uri
+          description: Schema ID
+        name:
+          type: string
+          description: Schema name
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/schemaReference"
+          description: Nested child schemas (recursive)
+        parents:
+          type: array
+          items:
+            $ref: "#/components/schemas/schemaReference"
+          description: Nested parent schemas (recursive)
+    config:
+      type: object
+      required:
+        - configName
+        - schemaId
+        - version
+        - createdAt
+        - createdBy
+        - config
+      properties:
+        configName:
+          $ref: "#/components/schemas/configName"
+        schemaId:
+          $ref: "#/components/schemas/schemaId"
+        version:
+          $ref: "#/components/schemas/version"
+        createdAt:
+          readOnly: true
+          allOf:
+            - $ref: "#/components/schemas/createdAt"
+        createdBy:
+          readOnly: true
+          allOf:
+            - $ref: "#/components/schemas/createdBy"
+        isLatest:
+          type: boolean
+          readOnly: true
+        hash:
+          type: string
+          readOnly: true
+          description: Merkle-tree hash of config body and dependencies for caching
+        config:
+          additionalProperties: true
+          example:
+            host: localhost
+            port: 8080
+      additionalProperties: false
+    configFullMetadata:
+      description: Comprehensive config metadata for inspector page
+      type: object
+      required:
+        - configName
+        - schemaId
+        - version
+        - createdAt
+        - createdBy
+        - rawConfig
+        - resolvedConfig
+        - configWithDefaults
+        - schema
+        - dependencies
+        - versions
+        - envVars
+        - stats
+      additionalProperties: false
+      properties:
+        configName:
+          $ref: "#/components/schemas/configName"
+        schemaId:
+          $ref: "#/components/schemas/schemaId"
+        version:
+          $ref: "#/components/schemas/version"
+        createdAt:
+          readOnly: true
+          allOf:
+            - $ref: "#/components/schemas/createdAt"
+        createdBy:
+          readOnly: true
+          allOf:
+            - $ref: "#/components/schemas/createdBy"
+        isLatest:
+          type: boolean
+          readOnly: true
+        hash:
+          type: string
+          readOnly: true
+          description: Merkle-tree hash of config body and dependencies for caching
+        rawConfig:
+          type: object
+          additionalProperties: true
+          description: Config with $refs intact (as stored) - same as 'config' field from base schema
+        resolvedConfig:
+          type: object
+          additionalProperties: true
+          description: Config with all $refs dereferenced
+        configWithDefaults:
+          type: object
+          additionalProperties: true
+          description: Config with $refs resolved AND schema defaults applied (actual runtime values)
+        schema:
+          type: object
+          description: Lightweight schema metadata
+          required:
+            - id
+            - name
+            - version
+            - category
+          properties:
+            id:
+              type: string
+              format: uri
+            name:
+              type: string
+            version:
+              type: string
+            category:
+              type: string
+            description:
+              type: string
+        dependencies:
+          type: object
+          description: Recursive dependency trees (max 2 levels deep)
+          required:
+            - children
+            - parents
+          properties:
+            children:
+              type: array
+              items:
+                $ref: "#/components/schemas/configReference"
+              description: Configs referenced by this config (nested tree, max 2 levels)
+            parents:
+              type: array
+              items:
+                $ref: "#/components/schemas/configReference"
+              description: Configs that reference this config (nested tree, max 2 levels)
+        versions:
+          type: object
+          description: Version history for this config name
+          required:
+            - total
+            - all
+          properties:
+            total:
+              type: integer
+              description: Total number of versions
+            all:
+              type: array
+              items:
+                $ref: "#/components/schemas/versionInfo"
+        envVars:
+          type: array
+          description: Environment variables with current values
+          items:
+            $ref: "#/components/schemas/envVarWithValue"
+        stats:
+          $ref: "#/components/schemas/configStats"
+    configReference:
+      type: object
+      description: Recursive tree node for config dependencies (similar to schemaReference)
+      required:
+        - configName
+        - schemaId
+        - isLatest
+      properties:
+        configName:
+          $ref: "#/components/schemas/configName"
+        version:
+          description: Single version number or array if multiple versions merged
+          oneOf:
+            - $ref: "#/components/schemas/version"
+            - type: array
+              items:
+                $ref: "#/components/schemas/version"
+              description: Multiple versions merged into single node
+        schemaId:
+          $ref: "#/components/schemas/schemaId"
+        isLatest:
+          type: boolean
+          description: True if any of the versions is the latest
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/versionInfo"
+          description: Version details when multiple versions are merged
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/configReference"
+          description: Nested child configs (recursive, max 2 levels deep)
+        parents:
+          type: array
+          items:
+            $ref: "#/components/schemas/configReference"
+          description: Nested parent configs (recursive, max 2 levels deep)
+    versionInfo:
+      type: object
+      description: Metadata about a specific config version
+      required:
+        - version
+        - createdAt
+        - createdBy
+        - isLatest
+        - hash
+      properties:
+        version:
+          $ref: "#/components/schemas/version"
+        createdAt:
+          $ref: "#/components/schemas/createdAt"
+        createdBy:
+          $ref: "#/components/schemas/createdBy"
+        isLatest:
+          type: boolean
+        hash:
+          type: string
+          description: Merkle-tree hash of this version
+    envVarWithValue:
+      description: Environment variable with current actual value from resolved config
+      allOf:
+        - type: object
+          required:
+            - envVariable
+            - configPath
+          properties:
+            envVariable:
+              type: string
+              description: Environment variable name (e.g., "DB_HOST")
+            configPath:
+              type: string
+              description: JSON path in config (e.g., "database.host")
+            format:
+              type: string
+              description: Format hint from x-env-format or format field
+            type:
+              type: string
+              description: JSON schema type (e.g., "string", "integer")
+            required:
+              type: boolean
+              description: Whether this field is required by schema
+            description:
+              type: string
+              description: Schema description
+            default:
+              description: Default value from schema (any type)
+            refLink:
+              type: string
+              format: uri
+              description: External schema reference if this env var comes from a $ref
+        - type: object
+          properties:
+            currentValue:
+              description: Actual value from resolved config with defaults applied
+            valueSource:
+              type: string
+              enum:
+                - default
+                - config
+              description: Whether value comes from schema default or config override
+    configStats:
+      type: object
+      description: Computed statistics about config structure
+      required:
+        - configSize
+        - keyCount
+        - refCount
+        - depth
+      properties:
+        configSize:
+          type: integer
+          description: Byte size of config JSON
+          example: 2048
+        keyCount:
+          type: integer
+          description: Total number of keys in config (recursive count)
+          example: 42
+        refCount:
+          type: integer
+          description: Number of $ref objects in config
+          example: 3
+        depth:
+          type: integer
+          description: Maximum nesting depth of config object
+          example: 5
+    capabilities:
+      type: object
+      required:
+        - serverVersion
+        - schemasPackageVersion
+        - pubSubEnabled
+      properties:
+        serverVersion:
+          description: The version of the server
+          type: string
+        schemasPackageVersion:
+          description: The version of the schemas package
+          type: string
+        pubSubEnabled:
+          description: >-
+            a flag that indicates if the pubsub is enabled for config change
+            notifications
+          type: boolean
+    callerId:
+      type: string
+      description: The unique ID of the instance holding the lock
+      minLength: 1
+    key:
+      type: string
+      description: An opaque identifier for the resource/group
+      minLength: 3
