@@ -18,7 +18,10 @@ import { $api, api, type ConfigCreateRequest } from "@/lib/api";
 import { Route } from "@/routes/wizard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorCard } from "@/components/ErrorCard";
-import { parseTanStackQueryError, type AppError } from "@/lib/errors/api-errors";
+import {
+  parseTanStackQueryError,
+  type AppError,
+} from "@/lib/errors/api-errors";
 import { toast } from "sonner";
 
 /**
@@ -93,7 +96,7 @@ export function WizardShell() {
                   schemaId,
                 },
               },
-            }
+            },
           );
 
           if (versionError) {
@@ -139,7 +142,7 @@ export function WizardShell() {
           to: "/config/$name/$version",
           params: {
             name: configName,
-            version: "latest",
+            version: (versionForSubmit + 1).toString(),
           },
           search: {
             schemaId,
@@ -289,7 +292,12 @@ export function WizardShell() {
       setInitError(null);
 
       try {
-        const { mode: urlMode, configName: urlConfigName, schemaId: urlSchemaId, targetVersion } = searchParams;
+        const {
+          mode: urlMode,
+          configName: urlConfigName,
+          schemaId: urlSchemaId,
+          targetVersion,
+        } = searchParams;
 
         if (urlMode === "create" || !urlMode) {
           // Create mode - start fresh
@@ -321,7 +329,7 @@ export function WizardShell() {
             setIsInitializing(false);
             return;
           }
-          
+
           if (!data) {
             setInitError({
               title: "No Data",
@@ -333,7 +341,7 @@ export function WizardShell() {
           }
 
           const content = JSON.stringify(data.config, null, 2);
-          
+
           initializeForEdit(urlConfigName, urlSchemaId, content);
           setIsInitializing(false);
           return;
@@ -346,24 +354,27 @@ export function WizardShell() {
           }
 
           // Fetch the target version (version to roll back TO)
-          const { data: targetData, error: targetError } = await api.GET("/config/{name}/{version}", {
-            params: {
-              path: {
-                name: urlConfigName,
-                version: targetVersion,
-              },
-              query: {
-                schemaId: urlSchemaId,
+          const { data: targetData, error: targetError } = await api.GET(
+            "/config/{name}/{version}",
+            {
+              params: {
+                path: {
+                  name: urlConfigName,
+                  version: targetVersion,
+                },
+                query: {
+                  schemaId: urlSchemaId,
+                },
               },
             },
-          });
+          );
 
           if (targetError) {
             setInitError(targetError);
             setIsInitializing(false);
             return;
           }
-          
+
           if (!targetData) {
             setInitError({
               title: "No Data",
@@ -377,25 +388,33 @@ export function WizardShell() {
           const targetContent = JSON.stringify(targetData.config, null, 2);
 
           // Fetch the latest version (for diff comparison)
-          const { data: latestData } = await api.GET("/config/{name}/{version}", {
-            params: {
-              path: {
-                name: urlConfigName,
-                version: "latest",
-              },
-              query: {
-                schemaId: urlSchemaId,
+          const { data: latestData } = await api.GET(
+            "/config/{name}/{version}",
+            {
+              params: {
+                path: {
+                  name: urlConfigName,
+                  version: "latest",
+                },
+                query: {
+                  schemaId: urlSchemaId,
+                },
               },
             },
-          });
+          );
 
           let latestContent = targetContent;
           if (latestData) {
             latestContent = JSON.stringify(latestData.config, null, 2);
           }
 
-          initializeForRollback(urlConfigName, urlSchemaId, targetContent, targetVersion);
-          
+          initializeForRollback(
+            urlConfigName,
+            urlSchemaId,
+            targetContent,
+            targetVersion,
+          );
+
           // Set the latest content for diff comparison
           const { setOriginalJsonContent } = useWizardStore.getState();
           setOriginalJsonContent(latestContent);
@@ -409,7 +428,8 @@ export function WizardShell() {
         setIsInitializing(false);
       } catch (err) {
         console.error("Failed to initialize wizard:", err);
-        const errorMessage = err instanceof Error ? err.message : "Failed to load wizard data";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load wizard data";
         setInitError({
           title: "Initialization Failed",
           message: errorMessage,
@@ -504,7 +524,7 @@ export function WizardShell() {
                     : "Rollback to a previous version"}
               </p>
             </div>
-            
+
             {/* Config summary - shown when config details are available */}
             {(configName || schemaId) && (
               <>
@@ -519,14 +539,19 @@ export function WizardShell() {
                               <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="text-xs">Cannot be changed when {mode === "edit" ? "editing" : "rolling back"}</p>
+                              <p className="text-xs">
+                                Cannot be changed when{" "}
+                                {mode === "edit" ? "editing" : "rolling back"}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       )}
-                      <span className="text-muted-foreground flex-shrink-0">Config:</span>
-                      <code 
-                        className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono truncate" 
+                      <span className="text-muted-foreground flex-shrink-0">
+                        Config:
+                      </span>
+                      <code
+                        className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono truncate"
                         title={configName}
                       >
                         {configName}
@@ -542,14 +567,19 @@ export function WizardShell() {
                               <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="text-xs">Cannot be changed when {mode === "edit" ? "editing" : "rolling back"}</p>
+                              <p className="text-xs">
+                                Cannot be changed when{" "}
+                                {mode === "edit" ? "editing" : "rolling back"}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
                       )}
-                      <span className="text-muted-foreground flex-shrink-0">Schema:</span>
-                      <code 
-                        className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono truncate" 
+                      <span className="text-muted-foreground flex-shrink-0">
+                        Schema:
+                      </span>
+                      <code
+                        className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono truncate"
                         title={schemaId}
                       >
                         {schemaId}
@@ -560,7 +590,11 @@ export function WizardShell() {
               </>
             )}
           </div>
-          <Button variant="outline" onClick={handleExit} className="flex-shrink-0">
+          <Button
+            variant="outline"
+            onClick={handleExit}
+            className="flex-shrink-0"
+          >
             Cancel
           </Button>
         </div>
@@ -623,7 +657,9 @@ export function WizardShell() {
         {/* Card with step content - takes remaining space */}
         <Card className="flex-1 flex flex-col min-h-0 overflow-hidden mb-3">
           <CardHeader className="flex-shrink-0 pb-3">
-            <CardTitle className="text-lg">{steps[currentStep - 1].title}</CardTitle>
+            <CardTitle className="text-lg">
+              {steps[currentStep - 1].title}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto min-h-0 pt-0">
             {renderStepContent()}
@@ -650,16 +686,20 @@ export function WizardShell() {
                 <TooltipContent>
                   <p>
                     Schema and config name cannot be modified when{" "}
-                    {mode === "edit" ? "creating a new version" : "rolling back"}
+                    {mode === "edit"
+                      ? "creating a new version"
+                      : "rolling back"}
                   </p>
                 </TooltipContent>
               )}
             </Tooltip>
           </TooltipProvider>
-          
+
           {currentStep === 4 ? (
             <Button onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
               {mode === "create" ? "Create Config" : "Create New Version"}
             </Button>
           ) : (

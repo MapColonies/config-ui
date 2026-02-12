@@ -23,9 +23,9 @@ export const useConfigFull = (
       },
       query: { schemaId: schemaId || "" },
     },
-    staleTime: 1000 * 60 * 5, // 5 min (more frequent than schema since configs change more)
-    gcTime: 1000 * 60 * 30, // 30 min
-    enabled: !!(name && version && schemaId),
+    // staleTime: 1000 * 60 * 5, // 5 min (more frequent than schema since configs change more)
+    // gcTime: 1000 * 60 * 30, // 30 min
+    // enabled: !!(name && version && schemaId),
   });
 };
 
@@ -49,8 +49,8 @@ export const useConfigVersions = (
         sort: ["version:desc"],
       },
     },
-    staleTime: 1000 * 60 * 2, // 2 min
-    gcTime: 1000 * 60 * 10, // 10 min
-    enabled: !!(configName && schemaId),
+    // staleTime: 1000 * 60 * 2, // 2 min
+    // gcTime: 1000 * 60 * 10, // 10 min
+    // enabled: !!(configName && schemaId),
   });
 };

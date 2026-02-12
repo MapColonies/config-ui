@@ -36,7 +36,7 @@ describe("configCache hooks", () => {
   });
 
   describe("useConfigFull", () => {
-    const mockFullConfig: any = {
+    const mockFullConfig = {
       configName: "test-config",
       schemaId: "https://example.com/schema/v1",
       version: 2,
@@ -75,10 +75,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       const { result } = renderHookWithProviders(() =>
-        useConfigFull("test-config", 2, "https://example.com/schema/v1")
+        useConfigFull("test-config", 2, "https://example.com/schema/v1"),
       );
 
       expect(result.current.isLoading).toBe(true);
@@ -90,10 +90,10 @@ describe("configCache hooks", () => {
         data: mockFullConfig,
         isLoading: false,
         error: null,
-      } as any);
+      });
 
       const { result } = renderHookWithProviders(() =>
-        useConfigFull("test-config", 2, "https://example.com/schema/v1")
+        useConfigFull("test-config", 2, "https://example.com/schema/v1"),
       );
 
       await waitFor(() => {
@@ -108,10 +108,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: false,
         error: mockError,
-      } as any);
+      });
 
       const { result } = renderHookWithProviders(() =>
-        useConfigFull("test-config", 2, "https://example.com/schema/v1")
+        useConfigFull("test-config", 2, "https://example.com/schema/v1"),
       );
 
       await waitFor(() => {
@@ -125,10 +125,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       renderHookWithProviders(() =>
-        useConfigFull("my-config", 5, "https://example.com/schema/v2")
+        useConfigFull("my-config", 5, "https://example.com/schema/v2"),
       );
 
       expect(mockUseQuery).toHaveBeenCalledWith(
@@ -139,7 +139,7 @@ describe("configCache hooks", () => {
             path: { name: "my-config", version: 5 },
             query: { schemaId: "https://example.com/schema/v2" },
           },
-        })
+        }),
       );
     });
 
@@ -148,10 +148,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       renderHookWithProviders(() =>
-        useConfigFull("app-config", 3, "https://example.com/schema/v1")
+        useConfigFull("app-config", 3, "https://example.com/schema/v1"),
       );
 
       const call = mockUseQuery.mock.calls[0];
@@ -162,7 +162,7 @@ describe("configCache hooks", () => {
   });
 
   describe("useConfigVersions", () => {
-    const mockVersionsData: any = {
+    const mockVersionsData = {
       configs: [
         {
           version: 3,
@@ -187,10 +187,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       const { result } = renderHookWithProviders(() =>
-        useConfigVersions("test-config", "https://example.com/schema/v1")
+        useConfigVersions("test-config", "https://example.com/schema/v1"),
       );
 
       expect(result.current.isLoading).toBe(true);
@@ -202,10 +202,10 @@ describe("configCache hooks", () => {
         data: mockVersionsData,
         isLoading: false,
         error: null,
-      } as any);
+      });
 
       const { result } = renderHookWithProviders(() =>
-        useConfigVersions("test-config", "https://example.com/schema/v1")
+        useConfigVersions("test-config", "https://example.com/schema/v1"),
       );
 
       await waitFor(() => {
@@ -219,10 +219,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       renderHookWithProviders(() =>
-        useConfigVersions("my-config", "https://example.com/schema/v2")
+        useConfigVersions("my-config", "https://example.com/schema/v2"),
       );
 
       expect(mockUseQuery).toHaveBeenCalledWith(
@@ -237,7 +237,7 @@ describe("configCache hooks", () => {
               sort: ["version:desc"],
             },
           },
-        })
+        }),
       );
     });
 
@@ -246,10 +246,10 @@ describe("configCache hooks", () => {
         data: undefined,
         isLoading: true,
         error: null,
-      } as any);
+      });
 
       renderHookWithProviders(() =>
-        useConfigVersions("app-config", "https://example.com/schema/v1")
+        useConfigVersions("app-config", "https://example.com/schema/v1"),
       );
 
       const call = mockUseQuery.mock.calls[0];
