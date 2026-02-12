@@ -1,28 +1,32 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import replace from '@rollup/plugin-replace';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      '/api': { target: 'http://localhost:8082', changeOrigin: true, rewrite: (path) => path.replace(/^\/api/, '') },
+  plugins: [
+    // @tanstack/router-plugin must come before react
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+    }),
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-  // hotfix based on https://github.com/JS-DevTools/ono/issues/19#issuecomment-1719659002 - not ideal but works
-  build: {
-    rollupOptions: {
-      plugins: [
-        replace({
-          delimiters: ['', ''],
-          preventAssignment: true,
-          values: {
-            'if (typeof module === "object" && typeof module.exports === "object") {':
-              'if (typeof module === "object" && typeof module.exports === "object" && typeof module.exports.default === "object") {',
-          },
-        }),
-      ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
     },
   },
 });

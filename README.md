@@ -1,71 +1,73 @@
-# config-ui
+# React + TypeScript + Vite
 
-Config UI is a web application responsible for managing all configurations  of the Map Colonies project. The application allows users to create configurations based on Schemas, view them in a table, create new configurations, roll back to existing ones, and create new configurations from existing ones.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- **Presenting Configs Table**: View all configurations in a tabular format.
-- **Creating New Configs**: Create new JSON configurations using specific JSON schemas, leveraging the Monaco editor for writing the config and AJV for validation.
-- **Reference Existing Configs**: Reference existing configurations in new ones using the following snippet:
-  ```json
-  "$ref": {"configName": "", "version": "latest", "schemaId": ""}
-  ```
-- **Rollback and Versioning**: Rollback to existing configurations or create new versions from them. The differences between the original and modified configurations are displayed using the Monaco diff editor.
-- **View Config**: Display all metadata and the configuration itself.
-- **View Schemas**: Display all schemas in a tree view.
-- **View Specific Schema**: View specific schemas in Monaco editor with the ability to toggle the schema to deference mode.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Technologies Used
+## React Compiler
 
-- **Vite**: For fast build and development setup.
-- **React**: For building the user interface.
-- **Monaco Editor**: For writing and displaying JSON configurations.
-- **MUI**: For Material-UI components.
-- **Zod**: For schema validation.
-- **AJV**: For JSON schema validation.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Installation
+## Expanding the ESLint configuration
 
-**Prerequisites**
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-Before you begin, make sure you have a local instance of [Config Server](https://github.com/MapColonies/config-server) running, which this application relies on for backend services.
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-To install and set up the project locally, follow these steps:
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-1. **Clone the repository**:
-   ```sh
-   git clone git@github.com:MapColonies/config-ui.git
-   ```
-2. **Navigate to the project directory**:
-   ```sh
-   cd config-ui
-   ```
-3. **Install dependencies**:
-   ```sh
-   npm install
-   ```
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-4. **Configure Proxy in Vite**
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-   After setting up the Config Server, update the `vite.config.ts` to include a [proxy configuration](https://vitejs.dev/config/server-options#server-proxy) that routes requests to your local Config Server instance.
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-5. **Run the application**:
-   ```sh
-   npm run dev
-   ```
-6. Open your browser and navigate to `http://localhost:5173` to see the application running.
-
-## Usage
-
-Once the application is set up and running:
-
-1. **View Configs**: Navigate to the configs table to view all configurations.
-2. **Create Configs**: Use the "Create New Config" button to create a new configuration using a specific JSON schema.
-3. **Reference Configs**: Use the `$ref` snippet to reference existing configurations in new ones.
-4. **Rollback/Versioning**: Use the rollback and versioning features to manage configurations. The differences will be displayed using the Monaco diff editor.
-5. **View Schemas**: Navigate to the schema tree view to see all available schemas.
-6. **View Specific Schema**: Use the Monaco editor to view and toggle schemas to deference mode.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more information.
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
